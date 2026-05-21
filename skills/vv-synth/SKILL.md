@@ -85,7 +85,7 @@ Expect `200`. On failure, start Docker once; retry synthesis at most once after 
 | Symptom | Action |
 |---------|--------|
 | `Cannot connect to the Docker daemon` | Start Docker Desktop |
-| `port is already allocated` (50021) | Stop other Engine containers, desktop VOICEVOX, or `./run` |
+| `port is already allocated` (50021) | Stop other Engine containers or desktop VOICEVOX |
 | `Connection refused` from `vv-synth` | Confirm container is running and port is `127.0.0.1:50021` |
 
 ## Install vv-synth CLI (if command missing)

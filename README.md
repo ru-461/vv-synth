@@ -16,14 +16,14 @@
 | Python 3.14+ | 実行環境 |
 | [uv](https://docs.astral.sh/uv/) | 依存関係管理 |
 | [Docker](https://www.docker.com/) | VOICEVOX Engine コンテナの起動 |
-| VOICEVOX Engine (起動済み) | HTTP API (`http://127.0.0.1:50021`) — 推奨は [Docker](#voicevox-engine-の起動-docker) |
+| VOICEVOX Engine (起動済み) | HTTP API (`http://127.0.0.1:50021`) — [Docker](#voicevox-engine-の起動-docker) で起動 |
 
 VOICEVOX CORE (`voicevox_core/`) は `vv-synth` では不要です。コアライブラリを試すときだけ [VOICEVOX CORE のセットアップ](#voicevox-core-のセットアップ-任意) を参照してください。
 
 ## VOICEVOX Engine の起動 (Docker)
 
 `vv-synth` が使うのは **HTTP で応答する Engine だけ** です。GUI の VOICEVOX デスクトップアプリは不要です。  
-本プロジェクトでは **Docker 公式イメージ** で Engine を起動するのを推奨します。
+本プロジェクトでは **Docker 公式イメージ** で Engine を起動します。
 
 出典: [voicevox/voicevox_engine on Docker Hub](https://hub.docker.com/r/voicevox/voicevox_engine)
 
@@ -78,121 +78,11 @@ vv-synth "こんにちは、Docker Engine のテストです。"
 | 症状 | 対処 |
 |------|------|
 | `Cannot connect to the Docker daemon` | Docker Desktop を起動 |
-| `port is already allocated` (50021) | 既存の Engine コンテナ・デスクトップ VOICEVOX・`./run` を停止 |
+| `port is already allocated` (50021) | 既存の Engine コンテナまたはデスクトップ VOICEVOX を停止 |
 | `vv-synth` が接続できない | コンテナが動いているか `curl .../version`、ポートが `127.0.0.1:50021` か確認 |
 | 話者 ID エラー (HTTP 4xx) | `/docs` の `/speakers` で `--speaker` を合わせる |
 
-## 代替: VOICEVOX Engine 単体バイナリ (GUI なし)
-
-Docker を使わない場合は、[VOICEVOX/voicevox_engine Releases](https://github.com/VOICEVOX/voicevox_engine/releases) から macOS 向け `.7z.001` を取得し `./run` で起動できます（GUI 不要）。手順の詳細は以前のドキュメントと同様です。
-
-出典: [VOICEVOX ENGINE Releases](https://github.com/VOICEVOX/voicevox_engine/releases)（例: タグ `0.25.2`、2026年5月時点の最新系）
-
-### 1. 自分の Mac に合うアーカイブを選ぶ
-
-[Releases](https://github.com/VOICEVOX/voicevox_engine/releases/latest) の **Assets** から **エンジン本体**（`.7z.001`）を 1 つだけダウンロードします。`.vvpp` は追加プラグイン用なので、初回は不要です。
-
-| Mac | ファイル名の例 |
-|-----|----------------|
-| Apple Silicon (M1/M2/M3 など) | `voicevox_engine-macos-arm64-<version>.7z.001` |
-| Intel Mac | `voicevox_engine-macos-x64-<version>.7z.001` |
-
-`<version>` は Release のタグ（例: `0.25.2`）に合わせます。同じバージョンの `.7z.txt` は分割アーカイブのファイル名一覧です（通常は `.7z.001` だけで足ります）。
-
-### 2. 解凍ツールを入れる
-
-配布物は 7z 形式です。macOS では [p7zip](https://formulae.brew.sh/formula/p7zip) が手軽です。
-
-```shell
-brew install p7zip
-```
-
-### 3. 解凍する
-
-ダウンロードした `.7z.001` があるディレクトリで:
-
-```shell
-cd ~/Downloads   # 例
-7z x voicevox_engine-macos-arm64-0.25.2.7z.001
-```
-
-`voicevox_engine-macos-arm64-0.25.2/` のようなフォルダができます（名前はバージョンにより変わります）。
-
-### 4. Engine を起動する
-
-```shell
-cd voicevox_engine-macos-arm64-0.25.2
-chmod +x run
-./run
-```
-
-- 初回は macOS の Gatekeeper で `run` がブロックされることがあります。そのときは **システム設定 → プライバシーとセキュリティ** から許可するか、ターミナルで `xattr -dr com.apple.quarantine run` のあと再実行します（自己責任で実行してください）。
-- 起動に成功すると、ターミナルに Uvicorn のログが流れ、**ポート 50021** で待ち受けます（既定。変更は下記「オプション」）。
-- 停止はそのターミナルで `Ctrl+C`。
-
-**注意:** VOICEVOX デスクトップアプリも同じ 50021 を使うため、**アプリと Engine 単体を同時に起動しない** でください。どちらか一方だけにします。
-
-### 5. 起動確認
-
-別ターミナルで:
-
-```shell
-curl -sSf http://127.0.0.1:50021/version
-```
-
-JSON が返れば OK です。ブラウザで [http://127.0.0.1:50021/docs](http://127.0.0.1:50021/docs) を開くと API ドキュメント（話者一覧 `/speakers` など）も見られます。
-
-### 6. `vv-synth` で合成する
-
-Engine を起動したまま、別ターミナルで:
-
-```shell
-vv-synth "こんにちは、Engine 単体のテストです。"
-```
-
-成功するとカレントディレクトリの `output/YYYYMMDD-HHMMSS.wav` ができます。
-
-### よく使う起動オプション
-
-`./run --help` の一部（[run.py](https://github.com/VOICEVOX/voicevox_engine/blob/master/run.py) より）:
-
-| オプション / 環境変数 | 意味 |
-|----------------------|------|
-| `--host` / `VV_HOST` | 待ち受けホスト（既定: `localhost` → 127.0.0.1 と ::1） |
-| `--port` / `VV_PORT` | ポート（既定: `50021`） |
-| `--use_gpu` / `VV_USE_GPU=1` | GPU 合成（環境が対応している場合） |
-| `--cpu_num_threads` / `VV_CPU_NUM_THREADS` | 合成スレッド数 |
-
-例 — ポートを変える場合（`vv-synth` 側も合わせる）:
-
-```shell
-./run --port 50022
-vv-synth "テスト" --engine-url http://127.0.0.1:50022
-# または
-export VOICEVOX_ENGINE_URL=http://127.0.0.1:50022
-vv-synth "テスト"
-```
-
-### バックグラウンドで常駐させる（任意）
-
-開発中はフォアグラウンドの `./run` で十分です。常駐させる例:
-
-```shell
-cd /path/to/voicevox_engine-macos-arm64-0.25.2
-nohup ./run > /tmp/voicevox-engine.log 2>&1 &
-```
-
-止めるときは `lsof -i :50021` で PID を確認し `kill` します。本番運用では `launchd` などに載せる方法もあります（例: [Qiita: Mac 上に VOICEVOX Engine を立てる](https://qiita.com/mikito/items/21aa74c3850a70c647f7)）。
-
-### トラブルシュート（Engine 単体）
-
-| 症状 | 対処 |
-|------|------|
-| `7z: command not found` | `brew install p7zip` |
-| `Permission denied` で `./run` 不可 | `chmod +x run` |
-| `Address already in use` (50021) | デスクトップ VOICEVOX や別の `./run` を終了 |
-| `vv-synth` が接続できない | Engine のターミナルが落ちていないか、`curl .../version` を再確認 |
-| 話者 ID エラー (HTTP 4xx) | `/docs` の `/speakers` でスタイル ID を確認し `--speaker` を指定 |
+**注意:** デスクトップ VOICEVOX アプリもポート 50021 を使います。Docker Engine と **同時に起動しない** でください。
 
 ## クイックスタート
 
@@ -462,7 +352,7 @@ vv-synth --help
 | 症状 | 確認すること |
 |------|----------------|
 | `command not found: vv-synth` | `uv tool install --editable .` と PATH (`~/.local/bin`) |
-| `Connection refused` | Engine 起動（[Docker](#voicevox-engine-の起動-docker) 推奨）、ポート 50021 |
+| `Connection refused` | [Docker で Engine を起動](#voicevox-engine-の起動-docker)、ポート 50021 |
 | HTTP 4xx | `--speaker` のスタイル ID |
 | 音声が保存されない | カレントディレクトリ、`--output-dir`、書き込み権限 |
 | Mermaid が表示されない | README のコードフェンスが ` ```mermaid ` であること |
