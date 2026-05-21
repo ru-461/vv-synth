@@ -13,3 +13,12 @@ curl -sSfL "https://github.com/VOICEVOX/voicevox_core/releases/latest/download/$
 chmod +x download
 ./download
 ```
+
+## 開発
+
+```shell
+uv sync --group dev
+uv run ruff check .
+uv run ruff format .
+uv run ty check
+```

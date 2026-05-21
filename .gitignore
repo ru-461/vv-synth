@@ -9,6 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
+# Tool caches
+.ruff_cache/
+
 # VOICEVOX CORE (run ./download in project root)
 download
 voicevox_core/
