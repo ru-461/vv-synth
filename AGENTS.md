@@ -2,18 +2,37 @@
 
 VOICEVOX Engine 向け CLI **`vv-synth`** のリポジトリ。利用者向け説明は [`README.md`](README.md)、アーキテクチャ図とメンテナンス手順も同ファイルにあります。
 
+**Agent Skills（配布・インストール）:** [`skills/README.md`](skills/README.md) — `gh skill install` で Cursor / Claude Code / Codex / Copilot などへ。ポータブル TTS は [`skills/vv-synth/`](skills/vv-synth/)、本リポ開発は [`skills/vv-synth-dev/`](skills/vv-synth-dev/)（Cursor 同梱: [`.cursor/skills/vv-synth-dev/`](.cursor/skills/vv-synth-dev/)）。
+
 ## プロジェクトの目的
 
 - テキストを VOICEVOX Engine で合成し、WAV をローカルに保存する
 - 実装の中心は **`vv_synth/engine_client.py`**（HTTP）と **`main.py`**（Typer CLI）
 - VOICEVOX CORE (`voicevox_core/`) は本 CLI では使わない
 
+## VOICEVOX Engine の起動（Docker・推奨）
+
+合成前に Engine が `http://127.0.0.1:50021` で応答していること。GUI の VOICEVOX アプリは不要。
+
+```shell
+docker pull voicevox/voicevox_engine:cpu-latest
+docker run --rm -it -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest
+```
+
+- 上記は **フォアグラウンド**。別ターミナルで `vv-synth` を実行する
+- 裏で常駐: `docker run --rm -d -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest`
+- 確認: `curl -sSf http://127.0.0.1:50021/version`
+- 50021 が使用中なら既存コンテナ / デスクトップ VOICEVOX を止める
+
+詳細: README [VOICEVOX Engine の起動 (Docker)](README.md#voicevox-engine-の起動-docker)
+
 ## クイックリファレンス
 
 ```shell
 uv sync --group dev
 uv run ruff check . && uv run ruff format . && uv run ty check
-uv run vv-synth "テスト"    # 要 VOICEVOX 起動
+# Engine 起動後（別ターミナル）
+uv run vv-synth "テスト"
 ```
 
 グローバル CLI: `uv tool install --editable .` → コマンド `vv-synth`
@@ -28,6 +47,8 @@ uv run vv-synth "テスト"    # 要 VOICEVOX 起動
 | `samples/engine_http_sample.py` | 参考用（CLI 非連携） | 依頼がなければ触らない |
 | `pyproject.toml` | パッケージ名 `vv-synth`、`[project.scripts]` | README インストール手順 |
 | `output/` | 生成 WAV（Git 除外） | コミットしない |
+| `skills/vv-synth/`, `skills/vv-synth-dev/` | Agent Skills 正本（`gh skill publish`） | CLI / Engine 手順を変えたら両方と `.cursor/skills/vv-synth-dev/` を同期 |
+| `share/cursor-skill-vv-synth/` | 旧手動コピー案内（非推奨） | `skills/` へ誘導のみ |
 
 ## 処理フロー（実装の正）
 
@@ -46,6 +67,7 @@ uv run vv-synth "テスト"    # 要 VOICEVOX 起動
 | Engine 連携・話速 | `vv_synth/engine_client.py` | 合成成功、README Mermaid 更新 |
 | コマンド名変更 | `pyproject.toml` scripts + `main.py` `Typer(name=...)` | `uv tool install --editable .` |
 | 依存追加 | `pyproject.toml` | `uv lock` |
+| Engine 起動手順・Agent Skill | README Docker 節、`skills/vv-synth/`、`skills/vv-synth-dev/`、`.cursor/skills/vv-synth-dev/` | コマンド例が一致しているか |
 
 ## 触らない・コミットしない
 
@@ -60,6 +82,7 @@ uv run vv-synth "テスト"    # 要 VOICEVOX 起動
 - 相対 import 禁止（`ban-relative-imports = "all"`）
 - `--help` 向け docstring に `Raises: typer.Exit` は書かない（`DOC501` 回避のため `main.py` で ignore）
 - CLI `--help` 文言は **英語**（利用者向け README 本文は日本語可）
+- CLI エラーは **英語 1 行のみ**（`typer.echo(..., err=True)`。`logger.exception` でトレースバックを出さない）
 
 ## コミット・スコープ
 
@@ -70,10 +93,9 @@ uv run vv-synth "テスト"    # 要 VOICEVOX 起動
 
 ## 外部依存・検証
 
-- 実行時: VOICEVOX アプリ起動 → Engine `http://127.0.0.1:50021`（`VOICEVOX_ENGINE_URL` で上書き可）
-- 話者 ID 既定 `2`（環境で異なる場合あり）
-- 手順詳細: Notion「VOICEVOXセットアップ」
-- Engine 未起動時は `EngineClientError` → exit code 1
+- 実行時: **Docker** で Engine `http://127.0.0.1:50021`（`VOICEVOX_ENGINE_URL` で上書き可）
+- 話者 ID 既定 `2`（Engine / バージョンで異なる場合あり）
+- Engine 未起動時は `EngineClientError` → stderr に英語メッセージ 1 行 → exit code 1
 
 ## ドキュメント同期（エージェント用チェックリスト）
 
@@ -83,3 +105,4 @@ uv run vv-synth "テスト"    # 要 VOICEVOX 起動
 2. README オプション表 — CLI フラグを変えたとき
 3. 本ファイル (`AGENTS.md`) と `CLAUDE.md` の構成表
 4. `output/README.md` — 出力規則を変えたとき
+5. Agent Skills — `skills/vv-synth/SKILL.md`、`skills/vv-synth-dev/SKILL.md`、`.cursor/skills/vv-synth-dev/SKILL.md`
