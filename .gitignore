@@ -16,6 +16,7 @@ wheels/
 download
 voicevox_core/
 
-# 合成サンプルの出力 (生成した音声ファイルはコミットしない)
-output.wav
-*.wav
+# 合成音声などの成果物 (output/README.md と .gitkeep のみ追跡)
+output/*
+!output/.gitkeep
+!output/README.md

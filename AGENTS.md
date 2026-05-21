@@ -1,12 +1,22 @@
 # voicevox-playground
 
-VOICEVOX で音声合成を試す Python プレイグラウンド（Python 3.14、uv）。
+VOICEVOX Engine を Typer CLI から呼び出す Python プレイグラウンド。詳細は `README.md` を参照。
+
+## 構成
+
+| パス | 役割 |
+|------|------|
+| `main.py` | Typer CLI (`uv run python main.py "テキスト"`) |
+| `voicevox_playground/engine_client.py` | Engine HTTP API |
+| `voicevox_playground/output_paths.py` | 成果物パス (`output/` 既定) |
+| `samples/engine_http_sample.py` | 参考用バックアップ (直接実行用) |
+| `output/` | 合成 WAV の成果物 |
 
 ## 触らない・コミットしない
 
-- `voicevox_core/` — `./download` で生成（約 1.7GB）
-- `download` — セットアップ用バイナリ
-- `.venv/`
+- `voicevox_core/`, `download` — CORE セットアップ用 (約 1.7GB)
+- `output/` 内の `*.wav` — CLI 成果物
+- `.venv/`, `.ruff_cache/`
 
 ## 開発
 
@@ -17,17 +27,18 @@ uv run ruff format .
 uv run ty check
 ```
 
-- `ruff` / `ty` は厳しめ（`pyproject.toml` 参照）
-- 変更後は上記チェックを通す
-- コミットはユーザーが明示したときのみ
+- Python 3.14、依存は `uv sync`
+- `ruff` / `ty` 厳しめ (`pyproject.toml`)
+- コミットはユーザー明示時のみ
+- コミットメッセージ: `prefix: message` (英語ワンライン)。`feat` `fix` `docs` `chore` `update` `refactor` `test` `style`
 
-## VOICEVOX
+## 実装メモ
 
-- リポジトリルートで `./download` を実行すると `voicevox_core/` ができる
-- アプリ・Engine・CORE の手順: Notion「VOICEVOXセットアップ」
-- CORE 取得のコマンド例: `README.md`
+- CLI 実行には VOICEVOX アプリ起動 (Engine `http://127.0.0.1:50021`) が必要
+- 成果物は `output/` に集約。`-o` 省略時はタイムスタンプファイル名
+- VOICEVOX 手順: Notion「VOICEVOXセットアップ」
 
 ## 方針
 
-- 依頼範囲だけ変更する。既存スタイルに合わせる
+- 依頼範囲のみ変更。既存スタイルに合わせる
 - 過剰な抽象化・テスト追加は求められない限りしない
