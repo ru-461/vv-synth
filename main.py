@@ -1,4 +1,4 @@
-"""VOICEVOX Engine でテキストを音声合成する Typer CLI."""
+"""VOICEVOX Engine 向けテキスト音声合成 CLI (``vv-synth``)."""
 
 from __future__ import annotations
 
@@ -22,8 +22,11 @@ from voicevox_playground.output_paths import (
 logger = logging.getLogger(__name__)
 
 app = typer.Typer(
+    name="vv-synth",
     add_completion=False,
-    help="VOICEVOX Engine でテキストを音声合成する CLI。",
+    no_args_is_help=True,
+    rich_markup_mode=None,
+    help="Synthesize text to WAV via VOICEVOX Engine.",
 )
 
 
@@ -31,56 +34,53 @@ app = typer.Typer(
 def synth(
     message: str = typer.Argument(
         ...,
-        help="読み上げるテキスト",
+        help="Text to speak.",
     ),
     output: Path | None = typer.Option(
         None,
         "--output",
         "-o",
-        help="出力ファイル名またはパス (省略時は output/ にタイムスタンプ名で保存)",
+        help="Output WAV file name or path.",
     ),
     output_dir: Path = typer.Option(
         DEFAULT_OUTPUT_DIR,
         "--output-dir",
-        help="成果物を格納するディレクトリ",
+        help="Directory for WAV output files.",
     ),
     speaker: int = typer.Option(
         DEFAULT_STYLE_ID,
         "--speaker",
         "-s",
-        help="話者スタイル ID (/speakers で確認)",
+        help="Speaker style ID (Engine GET /speakers).",
     ),
     speed: float = typer.Option(
         DEFAULT_SPEED_SCALE,
         "--speed",
         min=0.01,
         max=10.0,
-        help="話速 (1.0 が標準。大きいほど速い)",
+        help="Speech rate; 1.0 is normal, higher is faster.",
     ),
     engine_url: str = typer.Option(
         DEFAULT_ENGINE_URL,
         "--engine-url",
-        help="VOICEVOX Engine のベース URL",
+        help="VOICEVOX Engine base URL.",
         envvar="VOICEVOX_ENGINE_URL",
     ),
 ) -> None:
-    """引数で渡したメッセージを音声合成する.
+    """Synthesize MESSAGE to a WAV file.
 
-    合成した WAV は ``output/`` 配下に保存する。
-    ``--output-dir`` で別ディレクトリを指定できる。
-
-    Raises:
-        typer.Exit: 合成に失敗した場合 (exit code 1)。
+    Without -o, writes a timestamped file under output/ in the
+    current directory. Use --output-dir to change the directory.
     """
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
     output_path = resolve_output_file(output_dir=output_dir, filename=output)
 
-    logger.info("Engine: %s", engine_url)
-    logger.info("話者スタイル ID: %s", speaker)
-    logger.info("話速: %s", speed)
-    logger.info("テキスト: %s", message)
-    logger.info("出力先: %s", output_path)
+    logger.info("engine: %s", engine_url)
+    logger.info("speaker: %s", speaker)
+    logger.info("speed: %s", speed)
+    logger.info("text: %s", message)
+    logger.info("output: %s", output_path)
 
     try:
         saved = synthesize_text_to_file(
@@ -91,14 +91,14 @@ def synth(
             speed_scale=speed,
         )
     except (EngineClientError, ValueError):
-        logger.exception("音声合成に失敗しました")
+        logger.exception("synthesis failed")
         raise typer.Exit(code=1) from None
 
-    logger.info("保存しました: %s", saved.resolve())
+    logger.info("wrote %s", saved.resolve())
 
 
 def main() -> None:
-    """CLI エントリーポイント."""
+    """Entry point for the ``vv-synth`` command."""
     app()
 
 

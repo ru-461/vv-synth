@@ -1,12 +1,15 @@
 [project]
 name = "voicevox-playground"
 version = "0.1.0"
-description = "VOICEVOX Engine text-to-speech playground with Typer CLI"
+description = "VOICEVOX Engine text-to-speech CLI (vv-synth)"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "typer>=0.15",
 ]
+
+[project.scripts]
+vv-synth = "main:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -14,6 +17,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["voicevox_playground"]
+py-modules = ["main"]
 
 [dependency-groups]
 dev = [
@@ -59,7 +63,10 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
     "DOC501",
 ]
 "samples/engine_http_sample.py" = ["S310"]
-"main.py" = ["TC003"]  # Typer Option で Path を実行時に使用
+"main.py" = [
+    "TC003",  # Typer Option で Path を実行時に使用
+    "DOC501",  # --help 向け docstring に typer.Exit を載せない
+]
 "voicevox_playground/output_paths.py" = ["TC003"]
 
 [tool.ruff.lint.pydocstyle]

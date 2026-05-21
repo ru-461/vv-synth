@@ -2,7 +2,7 @@
 
 [VOICEVOX](https://voicevox.hiroshiba.jp/) Engine を使って、Python からテキスト音声合成を試すプレイグラウンドです。
 
-Typer 製の CLI で読み上げテキストを渡すと、合成した WAV を `output/` に保存します。HTTP API の参考実装は `samples/engine_http_sample.py` に残しています。
+`vv-synth` コマンドに読み上げテキストを渡すと、合成した WAV を保存します。HTTP API の参考実装は `samples/engine_http_sample.py` に残しています。
 
 ## 必要なもの
 
@@ -17,45 +17,73 @@ VOICEVOX CORE (`voicevox_core/`) は CLI では不要です。コアライブラ
 ## クイックスタート
 
 ```shell
-# 依存関係のインストール
 uv sync
-
-# VOICEVOX アプリを起動してから合成
-uv run python main.py "こんにちは、音声合成のテストです。"
+uv run vv-synth --help
 ```
 
-成功すると `output/YYYYMMDD-HHMMSS.wav` が作成されます。
+VOICEVOX アプリを起動してから:
 
 ```shell
-# ヘルプ
-uv run python main.py --help
+vv-synth "こんにちは、音声合成のテストです。"
 ```
 
-## CLI オプション
+`vv-synth` が PATH にない場合は、先に [グローバル CLI のインストール](#グローバル-cli-のインストール) を行うか、プロジェクト内では `uv run vv-synth` を使います。
+
+成功すると、実行したディレクトリの `output/YYYYMMDD-HHMMSS.wav` が作成されます。
+
+## グローバル CLI のインストール
+
+どのディレクトリからでも `vv-synth` を使うには、プロジェクト直下で一度だけ次を実行します。ソースを編集した変更は `--editable` により再インストールなしで反映されます。
+
+```shell
+uv tool install --editable .
+```
+
+`~/.local/bin` が PATH に入っていない場合:
+
+```shell
+uv tool update-shell
+# または
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+アンインストール:
+
+```shell
+uv tool uninstall voicevox-playground
+```
+
+## 使い方
+
+```shell
+vv-synth MESSAGE [OPTIONS]
+```
+
+### オプション
 
 | オプション | 短縮 | 既定値 | 説明 |
 |------------|------|--------|------|
 | `MESSAGE` | — | (必須) | 読み上げるテキスト |
-| `--output` | `-o` | 自動命名 | ファイル名またはパス |
-| `--output-dir` | — | `output` | 成果物を格納するディレクトリ |
+| `--output` | `-o` | 自動命名 | 出力 WAV のファイル名またはパス |
+| `--output-dir` | — | `output` | WAV を保存するディレクトリ |
 | `--speaker` | `-s` | `2` | 話者スタイル ID |
 | `--speed` | — | `1.0` | 話速 (`1.0` が標準。大きいほど速い) |
-| `--engine-url` | — | `http://127.0.0.1:50021` | Engine の URL (`VOICEVOX_ENGINE_URL` 可) |
+| `--engine-url` | — | `http://127.0.0.1:50021` | Engine の URL (`VOICEVOX_ENGINE_URL` でも指定可) |
 
-例:
+### 例
 
 ```shell
 # ファイル名を指定 → output/hello.wav
-uv run python main.py "テストです" -o hello.wav
+vv-synth "テストです" -o hello.wav
 
-# 成果物ディレクトリを変更
-uv run python main.py "テストです" --output-dir artifacts
+# 保存ディレクトリを変更
+vv-synth "テストです" --output-dir artifacts
 
-# 話者を変更 (一覧は Engine の /speakers)
-uv run python main.py "テストです" -s 3
+# 話者を変更 (一覧は Engine GET /speakers)
+vv-synth "テストです" -s 3
 
-# 話速を変更 (1.5 倍速)
-uv run python main.py "テストです" --speed 1.5
+# 話速を 1.5 倍に
+vv-synth "テストです" --speed 1.5
 ```
 
 話者スタイル ID は VOICEVOX 起動中に [http://127.0.0.1:50021/docs](http://127.0.0.1:50021/docs) の `/speakers` で確認できます。
@@ -64,25 +92,25 @@ uv run python main.py "テストです" --speed 1.5
 
 ```
 voicevox-playground/
-├── main.py                          # Typer CLI エントリーポイント
+├── main.py                          # vv-synth のエントリーポイント
 ├── voicevox_playground/
 │   ├── engine_client.py             # Engine HTTP API クライアント
-│   └── output_paths.py              # 成果物パス (output/ など)
+│   └── output_paths.py              # 出力パス (output/ など)
 ├── samples/
-│   └── engine_http_sample.py        # 参考用 HTTP サンプル (バックアップ)
-├── output/                          # 合成 WAV の成果物 (Git 除外)
+│   └── engine_http_sample.py        # 参考用 HTTP サンプル
+├── output/                          # 合成 WAV の出力先 (Git 除外)
 │   ├── README.md
 │   └── .gitkeep
 ├── pyproject.toml
 └── uv.lock
 ```
 
-## 成果物 (`output/`)
+## 出力先 (`output/`)
 
-合成した WAV は **`output/`** にまとめます。生成ファイルは Git に含めません。
+合成した WAV は、**コマンドを実行したディレクトリ**の `output/` に保存するのが既定です。生成ファイルは Git に含めません。
 
-| 指定方法 | 保存先の例 |
-|----------|------------|
+| 指定 | 保存先の例 |
+|------|------------|
 | `-o` 省略 | `output/20260521-143052.wav` |
 | `-o hello.wav` | `output/hello.wav` |
 | `-o path/to/a.wav` | 指定パスそのまま |
@@ -105,7 +133,7 @@ chmod +x download
 
 ## 参考用サンプル
 
-Typer 導入前の最小 HTTP 実装です。実装の参考用に残しています。
+Typer 導入前の最小 HTTP 実装です。
 
 ```shell
 uv run python samples/engine_http_sample.py
@@ -129,6 +157,7 @@ uv run ty check
 
 | 症状 | 確認すること |
 |------|----------------|
+| `command not found: vv-synth` | `uv tool install --editable .` と PATH (`~/.local/bin`) |
 | `Connection refused` | VOICEVOX アプリが起動しているか、ポート 50021 か |
 | HTTP 4xx | `--speaker` のスタイル ID が環境と合っているか |
-| 音声が保存されない | `--output-dir` のパス、書き込み権限 |
+| 音声が保存されない | カレントディレクトリ、`--output-dir`、書き込み権限 |

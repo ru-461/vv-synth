@@ -1,8 +1,8 @@
 # output
 
-VOICEVOX Engine で合成した音声ファイル (WAV) の成果物を格納するディレクトリ。
+`vv-synth` が合成した WAV の既定保存ディレクトリ。
 
-- CLI の既定保存先 (`uv run python main.py "テキスト"`)
+- コマンドを実行したディレクトリの `output/` に書き出す (既定)
 - 生成ファイルは Git に含めない (`.gitignore` で除外)
 
 ## ファイル名
