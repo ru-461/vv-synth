@@ -57,7 +57,7 @@ def create_audio_query(
     url = f"{base_url.rstrip('/')}/audio_query?{query}"
     result = _post_json(url)
     if not isinstance(result, dict):
-        msg = f"audio_query の応答が dict ではありません: {type(result)!r}"
+        msg = f"audio_query response is not a dict: {type(result)!r}"
         raise TypeError(msg)
     return cast("AudioQuery", result)
 
@@ -82,7 +82,7 @@ def save_wav(path: Path, wav_data: bytes) -> None:
 def apply_speed_scale(audio_query: AudioQuery, speed_scale: float) -> AudioQuery:
     """AudioQuery の話速 (speedScale) を設定する."""
     if speed_scale <= 0:
-        msg = f"speed_scale は正の数である必要があります: {speed_scale}"
+        msg = f"speed_scale must be positive: {speed_scale}"
         raise ValueError(msg)
     audio_query["speedScale"] = speed_scale
     return audio_query
@@ -118,15 +118,15 @@ def synthesize_text_to_file(
         save_wav(output, wav_data)
     except urllib.error.URLError as exc:
         msg = (
-            "VOICEVOX Engine に接続できませんでした。"
-            " VOICEVOX アプリを起動するか、"
-            " Engine が 50021 で待ち受けているか確認してください。"
+            "Could not connect to VOICEVOX Engine. "
+            "Start the Engine (e.g. Docker voicevox/voicevox_engine:cpu-latest "
+            "on port 50021) and ensure it is reachable."
         )
         raise EngineClientError(msg) from exc
     except urllib.error.HTTPError as exc:
         msg = (
-            f"Engine API がエラーを返しました (HTTP {exc.code})。"
-            " 話者 ID が環境と合っているか確認してください。"
+            f"Engine API returned an error (HTTP {exc.code}). "
+            "Check that the speaker style ID is valid for this Engine."
         )
         raise EngineClientError(msg) from exc
     else:

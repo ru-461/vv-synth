@@ -90,8 +90,8 @@ def synth(
             style_id=speaker,
             speed_scale=speed,
         )
-    except (EngineClientError, ValueError):
-        logger.exception("synthesis failed")
+    except (EngineClientError, ValueError, TypeError) as exc:
+        typer.echo(str(exc), err=True)
         raise typer.Exit(code=1) from None
 
     logger.info("wrote %s", saved.resolve())
