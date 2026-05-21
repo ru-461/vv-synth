@@ -9,6 +9,7 @@ import typer
 
 from voicevox_playground.engine_client import (
     DEFAULT_ENGINE_URL,
+    DEFAULT_SPEED_SCALE,
     DEFAULT_STYLE_ID,
     EngineClientError,
     synthesize_text_to_file,
@@ -49,6 +50,13 @@ def synth(
         "-s",
         help="話者スタイル ID (/speakers で確認)",
     ),
+    speed: float = typer.Option(
+        DEFAULT_SPEED_SCALE,
+        "--speed",
+        min=0.01,
+        max=10.0,
+        help="話速 (1.0 が標準。大きいほど速い)",
+    ),
     engine_url: str = typer.Option(
         DEFAULT_ENGINE_URL,
         "--engine-url",
@@ -70,6 +78,7 @@ def synth(
 
     logger.info("Engine: %s", engine_url)
     logger.info("話者スタイル ID: %s", speaker)
+    logger.info("話速: %s", speed)
     logger.info("テキスト: %s", message)
     logger.info("出力先: %s", output_path)
 
@@ -79,8 +88,9 @@ def synth(
             output_path,
             base_url=engine_url,
             style_id=speaker,
+            speed_scale=speed,
         )
-    except EngineClientError:
+    except (EngineClientError, ValueError):
         logger.exception("音声合成に失敗しました")
         raise typer.Exit(code=1) from None
 

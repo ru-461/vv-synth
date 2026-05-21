@@ -39,6 +39,7 @@ uv run python main.py --help
 | `--output` | `-o` | 自動命名 | ファイル名またはパス |
 | `--output-dir` | — | `output` | 成果物を格納するディレクトリ |
 | `--speaker` | `-s` | `2` | 話者スタイル ID |
+| `--speed` | — | `1.0` | 話速 (`1.0` が標準。大きいほど速い) |
 | `--engine-url` | — | `http://127.0.0.1:50021` | Engine の URL (`VOICEVOX_ENGINE_URL` 可) |
 
 例:
@@ -52,6 +53,9 @@ uv run python main.py "テストです" --output-dir artifacts
 
 # 話者を変更 (一覧は Engine の /speakers)
 uv run python main.py "テストです" -s 3
+
+# 話速を変更 (1.5 倍速)
+uv run python main.py "テストです" --speed 1.5
 ```
 
 話者スタイル ID は VOICEVOX 起動中に [http://127.0.0.1:50021/docs](http://127.0.0.1:50021/docs) の `/speakers` で確認できます。

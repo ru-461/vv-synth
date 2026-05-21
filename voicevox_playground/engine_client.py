@@ -14,6 +14,7 @@ AudioQuery = dict[str, Any]
 
 DEFAULT_ENGINE_URL = "http://127.0.0.1:50021"
 DEFAULT_STYLE_ID = 2
+DEFAULT_SPEED_SCALE = 1.0
 
 
 class EngineClientError(Exception):
@@ -78,12 +79,22 @@ def save_wav(path: Path, wav_data: bytes) -> None:
     path.write_bytes(wav_data)
 
 
+def apply_speed_scale(audio_query: AudioQuery, speed_scale: float) -> AudioQuery:
+    """AudioQuery の話速 (speedScale) を設定する."""
+    if speed_scale <= 0:
+        msg = f"speed_scale は正の数である必要があります: {speed_scale}"
+        raise ValueError(msg)
+    audio_query["speedScale"] = speed_scale
+    return audio_query
+
+
 def synthesize_text_to_file(
     text: str,
     output: Path,
     *,
     base_url: str = DEFAULT_ENGINE_URL,
     style_id: int = DEFAULT_STYLE_ID,
+    speed_scale: float = DEFAULT_SPEED_SCALE,
 ) -> Path:
     """テキストを音声合成し、WAV ファイルに保存する.
 
@@ -92,6 +103,7 @@ def synthesize_text_to_file(
         output: 出力先 WAV ファイル。
         base_url: Engine のベース URL。
         style_id: 話者スタイル ID。
+        speed_scale: 話速 (1.0 が標準。大きいほど速い)。
 
     Returns:
         保存したファイルのパス。
@@ -101,6 +113,7 @@ def synthesize_text_to_file(
     """
     try:
         audio_query = create_audio_query(base_url, text, style_id)
+        apply_speed_scale(audio_query, speed_scale)
         wav_data = synthesize_wav(base_url, audio_query, style_id)
         save_wav(output, wav_data)
     except urllib.error.URLError as exc:

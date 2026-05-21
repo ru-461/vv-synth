@@ -87,7 +87,7 @@ required-imports = ["from __future__ import annotations"]
 max-complexity = 10
 
 [tool.ruff.lint.pylint]
-max-args = 5
+max-args = 8
 max-branches = 12
 max-returns = 6
 max-statements = 50
