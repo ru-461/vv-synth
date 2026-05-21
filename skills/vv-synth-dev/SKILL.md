@@ -65,6 +65,8 @@ Global CLI after `uv tool install --editable .` is also fine.
 | `--speed` | — | `1.0` | `0.01`–`10.0` |
 | `--engine-url` | — | `http://127.0.0.1:50021` | `VOICEVOX_ENGINE_URL` |
 
+`vv-synth --help` is in English. On failure, stderr shows **one English line** (exit 1); do not expect a traceback.
+
 ## Python API (in-repo only)
 
 Prefer the CLI. For scripts inside this repository:
@@ -117,4 +119,5 @@ Publish: `gh skill publish --tag vX.Y.Z` from repo root.
 - [`README.md`](../../README.md)
 - [`AGENTS.md`](../../AGENTS.md)
 - [`CLAUDE.md`](../../CLAUDE.md)
+- [`skills/README.md`](../../skills/README.md)
 - [`output/README.md`](../../output/README.md)
