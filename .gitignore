@@ -15,3 +15,7 @@ wheels/
 # VOICEVOX CORE (run ./download in project root)
 download
 voicevox_core/
+
+# 合成サンプルの出力 (生成した音声ファイルはコミットしない)
+output.wav
+*.wav
