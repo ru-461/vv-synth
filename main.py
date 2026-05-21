@@ -7,14 +7,14 @@ from pathlib import Path
 
 import typer
 
-from voicevox_playground.engine_client import (
+from vv_synth.engine_client import (
     DEFAULT_ENGINE_URL,
     DEFAULT_SPEED_SCALE,
     DEFAULT_STYLE_ID,
     EngineClientError,
     synthesize_text_to_file,
 )
-from voicevox_playground.output_paths import (
+from vv_synth.output_paths import (
     DEFAULT_OUTPUT_DIR,
     resolve_output_file,
 )
