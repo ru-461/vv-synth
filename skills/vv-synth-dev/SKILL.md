@@ -2,11 +2,12 @@
 name: vv-synth-dev
 description: >-
   Develops and smoke-tests the vv-synth CLI in its repository using uv run
-  vv-synth and VOICEVOX Engine (Docker on port 50021). Use when editing
-  main.py, vv_synth/, running synthesis in the vv-synth repo, or maintaining
-  CLI and engine_client behavior—not for portable TTS in other projects.
+  vv-synth and a separately prepared VOICEVOX Engine (Docker or official binary
+  on port 50021). Use when editing main.py, vv_synth/, running synthesis in the
+  vv-synth repo, or maintaining CLI and engine_client behavior—not for portable
+  TTS in other projects.
 license: MIT
-compatibility: Requires Docker, Python 3.14+, uv, and the vv-synth repo checkout.
+compatibility: Requires Python 3.14+, uv, the vv-synth repo checkout, and a reachable VOICEVOX Engine on port 50021. Engine may be Docker CPU/GPU or an official binary.
 metadata:
   author: vv-synth
   version: "1.0.0"
@@ -14,7 +15,9 @@ metadata:
 
 # vv-synth-dev (repository development)
 
-Work inside the **vv-synth** repository. For TTS in other projects, use the `vv-synth` skill (`gh skill install OWNER/vv-synth vv-synth`).
+Work inside the **vv-synth** repository. For TTS in other projects, use the `vv-synth` skill (`gh skill install ru-461/vv-synth vv-synth`, or `npx skills add ru-461/vv-synth --skill vv-synth --global`).
+
+This repository is intended for OSS publication, but it must not vendor VOICEVOX Engine, voice libraries, model files, official binaries, Docker images, or generated WAV files. Preserve README guidance about VOICEVOX terms and speaker-specific credit requirements.
 
 ## When to use
 
@@ -22,11 +25,11 @@ Work inside the **vv-synth** repository. For TTS in other projects, use the `vv-
 |-----|------------|
 | Edit CLI, Engine client, or output paths | Portable narration in another repo (use `vv-synth` skill) |
 | `uv run vv-synth` smoke tests | User only wants docs without running synthesis |
-| Update README Mermaid / AGENTS.md after API changes | Engine down without user consent to start Docker |
+| Update README Mermaid / AGENTS.md after API changes | Engine down without user consent to start it |
 
 Follow [`AGENTS.md`](../../AGENTS.md) and [`README.md`](../../README.md) maintenance sections when changing code.
 
-## Start VOICEVOX Engine (Docker)
+## Prepare VOICEVOX Engine (Docker or binary)
 
 ```shell
 docker pull voicevox/voicevox_engine:cpu-latest
@@ -34,6 +37,15 @@ docker run --rm -it -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-late
 ```
 
 Background: `docker run --rm -d -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest`
+
+Windows / Linux NVIDIA GPU:
+
+```shell
+docker pull voicevox/voicevox_engine:nvidia-latest
+docker run --rm -it --gpus all -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:nvidia-latest
+```
+
+Windows GPU prerequisites: Docker Desktop WSL2 backend, current NVIDIA driver, and `wsl --update`. Official Windows/macOS/Linux Engine binaries are also fine if they listen on `http://127.0.0.1:50021`; `vv-synth` needs no GPU-specific option.
 
 Verify:
 
@@ -59,8 +71,8 @@ Global CLI after `uv tool install --editable .` is also fine.
 | Option | Short | Default | Notes |
 |--------|-------|---------|-------|
 | `MESSAGE` | — | required | Text for Engine |
-| `--output` | `-o` | auto timestamp under `output/` | File name or full path |
-| `--output-dir` | — | `output` | Directory when `-o` is basename only |
+| `--output` | `-o` | auto timestamp under `output/` (local time) | File name or full path |
+| `--output-dir` | — | `output` | Directory when `-o` is basename only; envvar `VV_SYNTH_OUTPUT_DIR` |
 | `--speaker` | `-s` | `2` | http://127.0.0.1:50021/docs `/speakers` |
 | `--speed` | — | `1.0` | `0.01`–`10.0` |
 | `--engine-url` | — | `http://127.0.0.1:50021` | `VOICEVOX_ENGINE_URL` |
@@ -101,23 +113,22 @@ uv run vv-synth "smoke test"   # Engine must be up
 INFO: wrote /path/to/file.wav
 ```
 
-Do not commit `output/*.wav`. Commit only when the user asks.
+Do not commit `output/*.wav`, VOICEVOX Engine binaries, models, or voice libraries. Generated audio distribution must follow VOICEVOX and speaker-specific terms. Commit only when the user asks.
 
 ## Maintainer sync
 
-When Docker steps or CLI options change, update together:
+When Engine setup, terms guidance, or CLI options change, update together:
 
 1. `skills/vv-synth/SKILL.md` (portable)
 2. This file (`skills/vv-synth-dev/SKILL.md`)
-3. `.cursor/skills/vv-synth-dev/SKILL.md` (Cursor in-repo; keep aligned with this skill)
-4. `README.md` / `AGENTS.md` as needed
+3. `README.md` / `README.ja.md` / `AGENTS.md` / `CLAUDE.md` as needed
 
 Publish: `gh skill publish --tag vX.Y.Z` from repo root.
 
 ## Related docs
 
 - [`README.md`](../../README.md)
+- [`README.ja.md`](../../README.ja.md)
 - [`AGENTS.md`](../../AGENTS.md)
 - [`CLAUDE.md`](../../CLAUDE.md)
 - [`skills/README.md`](../../skills/README.md)
-- [`output/README.md`](../../output/README.md)

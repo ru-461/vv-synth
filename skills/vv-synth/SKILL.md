@@ -1,12 +1,13 @@
 ---
 name: vv-synth
 description: >-
-  Synthesizes text to WAV via the vv-synth CLI and VOICEVOX Engine (Docker
-  voicevox/voicevox_engine:cpu-latest on port 50021). Use when the user wants
-  TTS, voice narration, demo audio, VOICEVOX, read-aloud, or a WAV file from
-  text in any project; or asks to run vv-synth outside the vv-synth repository.
+  Synthesizes text to WAV via the vv-synth CLI and a separately prepared
+  VOICEVOX Engine (Docker or official binary on port 50021). Use when the user
+  wants TTS, voice narration, demo audio, VOICEVOX, read-aloud, or a WAV file
+  from text in any project; or asks to run vv-synth outside the vv-synth
+  repository.
 license: MIT
-compatibility: Requires Docker, Python 3.14+, uv, and a reachable VOICEVOX Engine on port 50021.
+compatibility: Requires Python 3.14+, uv, and a reachable VOICEVOX Engine on port 50021. Engine may be Docker CPU/GPU or an official binary. Windows Docker GPU requires Docker Desktop WSL2 backend with NVIDIA GPU.
 metadata:
   author: vv-synth
   version: "1.0.0"
@@ -14,34 +15,11 @@ metadata:
 
 # vv-synth (portable — any project)
 
-`vv-synth` is a **global Typer CLI** (install once from the vv-synth repository). It calls VOICEVOX Engine over HTTP and writes a WAV under the **shell current working directory**. Japanese text works best; other languages depend on the Engine build.
+`vv-synth` is a **global Typer CLI** (install once from the vv-synth repository). It calls a separately prepared VOICEVOX Engine over HTTP and writes a WAV under the **shell current working directory**. Japanese text works best; other languages depend on the Engine build.
 
-**Not this skill:** editing vv-synth source — install or use the `vv-synth-dev` skill from the same repository.
+This skill does not install or redistribute VOICEVOX Engine, voice libraries, model files, binaries, Docker images, or generated WAV files. Follow the latest VOICEVOX Engine terms and each voice library / speaker's terms, including credit requirements, before using or distributing generated audio.
 
-## Install this skill (GitHub CLI)
-
-Requires [GitHub CLI](https://cli.github.com/) v2.90+.
-
-```shell
-# All supported agents (~/.agents/skills or agent-specific dirs)
-gh skill install OWNER/vv-synth vv-synth --scope user --agent universal
-
-# Or pick one host
-gh skill install OWNER/vv-synth vv-synth --scope user --agent cursor
-gh skill install OWNER/vv-synth vv-synth --scope user --agent claude-code
-gh skill install OWNER/vv-synth vv-synth --scope user --agent codex
-gh skill install OWNER/vv-synth vv-synth --scope user --agent github-copilot
-```
-
-From a local clone (before publishing):
-
-```shell
-gh skill install /path/to/vv-synth vv-synth --from-local --scope user --agent universal
-```
-
-Update later: `gh skill update vv-synth`. Pin a release: `gh skill install OWNER/vv-synth vv-synth@v1.0.0 --scope user`.
-
-Replace `OWNER` with the GitHub user or org that hosts the repository.
+**Not this skill:** editing vv-synth source — install or use the `vv-synth-dev` skill from the same repository. Skill install/update commands live in [references/REFERENCE.md](references/REFERENCE.md).
 
 ## When to use
 
@@ -49,21 +27,23 @@ Replace `OWNER` with the GitHub user or org that hosts the repository.
 |-----|------------|
 | User wants speech, narration, TTS, or a local WAV | Cloud-only TTS with no local Engine |
 | Demo / fixture audio for another app | User only asked to change vv-synth internals |
-| Read-aloud for docs, games, bots, videos | Engine is down and user did not agree to start Docker |
+| Read-aloud for docs, games, bots, videos | Engine is down and user did not agree to start it |
 | `assets/`, `public/audio/`, etc. under the target repo | Reimplementing Engine HTTP in the target project |
 
 ## Prerequisites
 
 | Requirement | Notes |
 |-------------|-------|
-| Docker | VOICEVOX Engine container (recommended) |
+| Docker or official Engine binary | VOICEVOX Engine must listen on port 50021 |
 | Python 3.14+ and [uv](https://docs.astral.sh/uv/) | For `uv tool install` or `uv run --project` |
 | `vv-synth` on PATH | Or `uv run --project <vv-synth-repo> vv-synth` |
 | Engine on `http://127.0.0.1:50021` | Override with `--engine-url` or `VOICEVOX_ENGINE_URL` |
 
-GUI VOICEVOX desktop app is **not** required. Do not run it on port 50021 while Docker Engine is up.
+GUI VOICEVOX desktop app is **not** required. Do not run multiple Engines on port 50021 at the same time.
 
-## Start VOICEVOX Engine (Docker — before synthesis)
+## Prepare VOICEVOX Engine (Docker or binary — before synthesis)
+
+Docker CPU:
 
 ```shell
 docker pull voicevox/voicevox_engine:cpu-latest
@@ -72,7 +52,9 @@ docker run --rm -it -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-late
 
 - **Foreground** (`-it`): one terminal stays busy; run `vv-synth` in a **second** terminal
 - **Background**: `docker run --rm -d -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest` — stop with `docker ps` then `docker stop <id>`
-- Apple Silicon / Intel Mac: `cpu-latest` is usually enough; NVIDIA hosts may use `nvidia-latest` ([Docker Hub](https://hub.docker.com/r/voicevox/voicevox_engine))
+- Windows / Linux NVIDIA GPU: `docker pull voicevox/voicevox_engine:nvidia-latest`, then `docker run --rm -it --gpus all -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:nvidia-latest`
+- Windows GPU prerequisites: Docker Desktop WSL2 backend, current NVIDIA driver, `wsl --update`; validate with `docker run --rm -it --gpus=all nvcr.io/nvidia/k8s/cuda-sample:nbody nbody -gpu -benchmark`
+- Official Windows/macOS/Linux Engine binaries are also fine if they listen on `http://127.0.0.1:50021`; `vv-synth` needs no GPU-specific option
 
 Verify before calling `vv-synth`:
 
@@ -80,12 +62,13 @@ Verify before calling `vv-synth`:
 curl -sSf -o /dev/null -w "%{http_code}\n" http://127.0.0.1:50021/version
 ```
 
-Expect `200`. On failure, start Docker once; retry synthesis at most once after Engine is healthy.
+Expect `200`. On failure, start Engine once; retry synthesis at most once after Engine is healthy.
 
 | Symptom | Action |
 |---------|--------|
-| `Cannot connect to the Docker daemon` | Start Docker Desktop |
+| `Cannot connect to the Docker daemon` | Start Docker Desktop, or use an official Engine binary |
 | `port is already allocated` (50021) | Stop other Engine containers or desktop VOICEVOX |
+| GPU container cannot select a driver | Confirm Docker Desktop WSL2 backend, NVIDIA driver, and `wsl --update` |
 | `Connection refused` from `vv-synth` | Confirm container is running and port is `127.0.0.1:50021` |
 
 ## Install vv-synth CLI (if command missing)
@@ -111,7 +94,7 @@ uv run --project /path/to/vv-synth vv-synth --help
 
 ```shell
 cd /path/to/target-project
-vv-synth "読み上げるテキスト"
+vv-synth "Text to speak"
 vv-synth "Narration line" -o public/audio/intro.wav
 vv-synth "Faster line" --speaker 3 --speed 1.5
 ```
@@ -119,8 +102,8 @@ vv-synth "Faster line" --speaker 3 --speed 1.5
 | Option | Short | Default | Notes |
 |--------|-------|---------|-------|
 | `MESSAGE` | — | required | Text sent to Engine |
-| `--output` | `-o` | auto `output/YYYYMMDD-HHMMSS.wav` | Basename → under `--output-dir`; path with dirs → used as-is |
-| `--output-dir` | — | `output` | Directory when `-o` is only a filename |
+| `--output` | `-o` | auto `output/YYYYMMDD-HHMMSS.wav` (local time) | Basename → under `--output-dir`; path with dirs → used as-is |
+| `--output-dir` | — | `output` | Directory when `-o` is only a filename; envvar `VV_SYNTH_OUTPUT_DIR` |
 | `--speaker` | `-s` | `2` | Style ID — http://127.0.0.1:50021/docs `/speakers` |
 | `--speed` | — | `1.0` | `0.01`–`10.0`; higher = faster |
 | `--engine-url` | — | `http://127.0.0.1:50021` | Env: `VOICEVOX_ENGINE_URL` |
@@ -153,7 +136,7 @@ Confirm the file exists on disk; return the resolved path to the user. Do not `g
 | Symptom | Action |
 |---------|--------|
 | `command not found: vv-synth` | `uv tool install --editable /path/to/vv-synth` or `uv run --project <repo> vv-synth` |
-| `Connection refused` | Start Docker Engine; `curl .../version` → 200 |
+| `Connection refused` | Start Engine; `curl .../version` → 200 |
 | HTTP 4xx | Fix `--speaker` using `/speakers` in Engine docs |
 | Exit code 1 | Read one-line stderr; do not expect a traceback |
 | Hang then failure | Text may be too long for one request; split and retry |
@@ -161,12 +144,13 @@ Confirm the file exists on disk; return the resolved path to the user. Do not `g
 ## Agent workflow checklist
 
 ```
-- [ ] Docker Engine on 127.0.0.1:50021 (or user agreed to start it)
+- [ ] VOICEVOX Engine on 127.0.0.1:50021 (or user agreed to start it)
 - [ ] curl /version → 200
 - [ ] cd to target project (owner of the WAV)
 - [ ] vv-synth "..." [options]
 - [ ] Confirm INFO wrote ... and file exists
 - [ ] Return path; do not commit WAV unless asked
+- [ ] Generated audio use/distribution follows VOICEVOX and speaker-specific terms and credit requirements
 ```
 
 ## Do not reimplement Engine HTTP
@@ -175,4 +159,4 @@ Use the `vv-synth` CLI only unless the user explicitly wants direct `/audio_quer
 
 ## More detail
 
-See [references/REFERENCE.md](references/REFERENCE.md) for output path rules and publishing notes.
+See [references/REFERENCE.md](references/REFERENCE.md) for output path rules, skill install/update commands, and publishing notes.
