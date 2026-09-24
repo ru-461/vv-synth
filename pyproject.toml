@@ -3,27 +3,75 @@ name = "vv-synth"
 version = "0.1.0"
 description = "VOICEVOX Engine text-to-speech CLI (vv-synth)"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "ru-461" }]
 requires-python = ">=3.14"
+keywords = [
+    "voicevox",
+    "tts",
+    "text-to-speech",
+    "speech-synthesis",
+    "cli",
+    "japanese",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
 dependencies = [
     "typer>=0.15",
 ]
 
+[project.urls]
+Homepage = "https://github.com/ru-461/vv-synth"
+Repository = "https://github.com/ru-461/vv-synth"
+Issues = "https://github.com/ru-461/vv-synth/issues"
+Changelog = "https://github.com/ru-461/vv-synth/releases"
+
 [project.scripts]
 vv-synth = "main:main"
+vvs = "main:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# `only-include` ships both the package and the root `main.py` module that
+# provides the `main:main` console-script entry point (hatchling has no
+# setuptools-style `py-modules` option).
 [tool.hatch.build.targets.wheel]
-packages = ["vv_synth"]
-py-modules = ["main"]
+only-include = ["vv_synth", "main.py"]
+
+# Keep the sdist focused on what pip/uv consumers need; editor, CI, and
+# agent metadata stay in the Git repository only.
+[tool.hatch.build.targets.sdist]
+exclude = [
+    ".claude",
+    ".github",
+    ".vscode",
+    "docs",
+    "output/.gitkeep",
+    "skills",
+]
 
 [dependency-groups]
 dev = [
     "ruff>=0.11",
     "ty>=0.0.35",
+    "pytest>=8.3",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
 
 [tool.ruff]
 target-version = "py314"
@@ -43,31 +91,41 @@ preview = true
 fixable = ["ALL"]
 unfixable = []
 ignore = [
-    # formatter と競合するルール
+    # Rules that conflict with the formatter.
     "COM812",
     "ISC001",
-    # docstring スタイルの競合（google 採用）
+    # Rules that conflict with the Google docstring convention.
     "D203",
     "D213",
-    # 著作権ヘッダーは不要
+    # Copyright headers are not required.
     "CPY001",
+    # Keep rule codes as selectors; this preview rule asks for rule names.
+    "RUF201",
 ]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["D104"]
 "vv_synth/engine_client.py" = [
-    "S310",  # Engine へのローカル HTTP 呼び出し
-    "TC003",  # Path は実行時にも使用する
-    "DOC201",  # 内部ヘルパーは docstring を簡潔に保つ
+    "S310",  # Local HTTP calls to the Engine.
+    "DOC201",  # Keep internal helper docstrings concise.
     "DOC501",
 ]
-"samples/engine_http_sample.py" = ["S310"]
 "main.py" = [
-    "TC003",  # Typer Option で Path を実行時に使用
-    "DOC501",  # --help 向け docstring に typer.Exit を載せない
+    "TC003",  # Typer Option uses Path at runtime.
+    "DOC501",  # Keep typer.Exit out of --help docstrings.
 ]
-"vv_synth/output_paths.py" = ["TC003"]
+"tests/*" = [
+    "S101",     # `assert` is the standard pytest idiom
+    "PLR2004",  # Magic values are common in test fixtures
+    "D",        # Test functions do not need formal docstrings
+    "DOC",      # Test helpers do not need Returns/Raises sections
+    "INP001",   # `tests/` is a regular pytest package
+    "ANN",      # Test function annotations are noise
+    "ARG",      # Pytest fixtures sometimes pass unused arguments
+    "SLF001",   # Tests may touch internals when needed
+    "RUF069",   # Direct float compare is fine after literal assignment
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -79,7 +137,6 @@ suppress-none-returning = false
 
 [tool.ruff.lint.flake8-type-checking]
 strict = true
-runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
