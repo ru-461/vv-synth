@@ -1,24 +1,25 @@
-"""合成音声など成果物の出力パスを扱う."""
+"""Manage output paths for synthesized audio artifacts."""
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from pathlib import Path
+from time import strftime
 
-# 成果物 (合成 WAV など) の既定出力ディレクトリ
+# Default output directory for artifacts such as synthesized WAV files.
 DEFAULT_OUTPUT_DIR = Path("output")
 
 
 def ensure_output_dir(output_dir: Path) -> Path:
-    """出力ディレクトリを作成する (存在しない場合).
+    """Create the output directory if it does not exist.
 
     Args:
-        output_dir: 作成するディレクトリ。
+        output_dir: Directory to create.
 
     Returns:
-        作成したディレクトリのパス。
+        Path to the created directory.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
+
     return output_dir
 
 
@@ -27,25 +28,25 @@ def resolve_output_file(
     output_dir: Path,
     filename: Path | None = None,
 ) -> Path:
-    """成果物 WAV の保存パスを決定する.
+    """Resolve the destination path for an artifact WAV file.
 
-    ``filename`` 省略時は ``output_dir`` 配下にタイムスタンプ付きファイル名を使う。
-    ファイル名のみ指定時は ``output_dir`` に格納する。
-    ディレクトリを含むパス指定時はそのパスをそのまま使う。
+    When ``filename`` is omitted, use a timestamped name under ``output_dir``.
+    When only a file name is provided, place it under ``output_dir``.
+    When a path with directories is provided, use that path as-is.
 
     Args:
-        output_dir: 成果物を格納するディレクトリ。
-        filename: 出力ファイル名またはパス。None のとき自動生成。
+        output_dir: Directory that stores artifacts.
+        filename: Output file name or path. Auto-generated when None.
 
     Returns:
-        保存先ファイルのパス。
+        Destination file path.
     """
     if filename is None:
-        timestamp = datetime.now(tz=UTC).strftime("%Y%m%d-%H%M%S")
+        timestamp = strftime("%Y%m%d-%H%M%S")
         return ensure_output_dir(output_dir) / f"{timestamp}.wav"
 
     if filename.parent.parts:
-        filename.parent.mkdir(parents=True, exist_ok=True)
+        ensure_output_dir(filename.parent)
         return filename
 
     return ensure_output_dir(output_dir) / filename.name

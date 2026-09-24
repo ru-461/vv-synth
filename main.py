@@ -1,4 +1,4 @@
-"""VOICEVOX Engine 向けテキスト音声合成 CLI (``vv-synth``)."""
+"""Text-to-speech CLI for VOICEVOX Engine (``vv-synth``)."""
 
 from __future__ import annotations
 
@@ -34,6 +34,7 @@ app = typer.Typer(
 def synth(
     message: str = typer.Argument(
         ...,
+        metavar="MESSAGE",
         help="Text to speak.",
     ),
     output: Path | None = typer.Option(
@@ -46,6 +47,7 @@ def synth(
         DEFAULT_OUTPUT_DIR,
         "--output-dir",
         help="Directory for WAV output files.",
+        envvar="VV_SYNTH_OUTPUT_DIR",
     ),
     speaker: int = typer.Option(
         DEFAULT_STYLE_ID,
@@ -69,12 +71,17 @@ def synth(
 ) -> None:
     """Synthesize MESSAGE to a WAV file.
 
-    Without -o, writes a timestamped file under output/ in the
-    current directory. Use --output-dir to change the directory.
+    Without -o, writes a local-time timestamped file under output/
+    in the current directory (auto-created). Use --output-dir or
+    set VV_SYNTH_OUTPUT_DIR to change the directory.
     """
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-    output_path = resolve_output_file(output_dir=output_dir, filename=output)
+    try:
+        output_path = resolve_output_file(output_dir=output_dir, filename=output)
+    except OSError as exc:
+        typer.echo(f"Could not create the output directory: {exc}", err=True)
+        raise typer.Exit(code=1) from None
 
     logger.info("engine: %s", engine_url)
     logger.info("speaker: %s", speaker)
@@ -92,6 +99,9 @@ def synth(
         )
     except (EngineClientError, ValueError, TypeError) as exc:
         typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from None
+    except OSError as exc:
+        typer.echo(f"Could not write the WAV file: {exc}", err=True)
         raise typer.Exit(code=1) from None
 
     logger.info("wrote %s", saved.resolve())

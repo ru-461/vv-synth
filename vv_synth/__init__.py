@@ -1,3 +1,3 @@
-"""``vv-synth`` CLI のライブラリパッケージ."""
+"""Library package for the ``vv-synth`` CLI."""
 
 from __future__ import annotations
