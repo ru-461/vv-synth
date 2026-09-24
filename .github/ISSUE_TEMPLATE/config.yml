@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: VOICEVOX Q&A (terms, credit, voices)
+    url: https://voicevox.hiroshiba.jp/qa/
+    about: Questions about VOICEVOX terms, credit requirements, or voice libraries belong upstream, not here.
+  - name: VOICEVOX Engine issues
+    url: https://github.com/VOICEVOX/voicevox_engine/issues
+    about: Problems with the Engine HTTP API, synthesis quality, or installation should go to VOICEVOX Engine.

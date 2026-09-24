@@ -1,0 +1,80 @@
+name: Bug report
+description: Report a problem with the vv-synth CLI
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. This tracker is for the **vv-synth CLI** only.
+        Problems with the VOICEVOX Engine itself, voice libraries, or terms belong upstream
+        (see the links on the issue chooser).
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I confirmed the Engine responds (`curl -sSf http://127.0.0.1:50021/version` returns JSON).
+          required: true
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: vv-synth version / commit
+      description: "`pyproject.toml` version (e.g. 0.1.0) or the git commit SHA you are on."
+      placeholder: "0.1.0 / abc1234"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: Output of `python --version`.
+      placeholder: "3.14.x"
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: How is the Engine running?
+      options:
+        - Docker CPU (cpu-latest)
+        - Docker NVIDIA GPU (nvidia-latest)
+        - Official binary
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The exact `vv-synth` command(s) you ran.
+      placeholder: |
+        1. Start Engine: docker run --rm -it -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest
+        2. Run: uv run vv-synth "..." -s 3
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the one-line stderr message and exit code. Do not paste full tracebacks.
+    validations:
+      required: true
