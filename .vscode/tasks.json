@@ -1,0 +1,86 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "uv: sync dev",
+      "type": "shell",
+      "command": "uv",
+      "args": ["sync", "--group", "dev"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "ruff: check",
+      "type": "shell",
+      "command": "uv",
+      "args": ["run", "ruff", "check", "."],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "ruff: format",
+      "type": "shell",
+      "command": "uv",
+      "args": ["run", "ruff", "format", "."],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "ruff: format check",
+      "type": "shell",
+      "command": "uv",
+      "args": ["run", "ruff", "format", "--check", "."],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "ty: check",
+      "type": "shell",
+      "command": "uv",
+      "args": ["run", "ty", "check"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "pytest",
+      "type": "shell",
+      "command": "uv",
+      "args": ["run", "pytest"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "vv-synth: help",
+      "type": "shell",
+      "command": "uv",
+      "args": ["run", "vv-synth", "--help"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "vv-synth: smoke",
+      "type": "shell",
+      "command": "uv",
+      "args": ["run", "vv-synth", "smoke test"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "quality: fix",
+      "dependsOrder": "sequence",
+      "dependsOn": ["ruff: check", "ruff: format", "ty: check", "pytest"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "quality: ci",
+      "dependsOrder": "sequence",
+      "dependsOn": ["ruff: check", "ruff: format check", "ty: check", "pytest"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}
