@@ -17,7 +17,7 @@ metadata:
 
 Work inside the **vv-synth** repository. For TTS in other projects, use the `vv-synth` skill (`gh skill install ru-461/vv-synth vv-synth`, or `npx skills add ru-461/vv-synth --skill vv-synth --global`).
 
-This repository is intended for OSS publication, but it must not vendor VOICEVOX Engine, voice libraries, model files, official binaries, Docker images, or generated WAV files. Preserve README guidance about VOICEVOX terms and speaker-specific credit requirements.
+This repository is open source (MIT) and must not vendor VOICEVOX Engine, voice libraries, model files, official binaries, Docker images, or generated WAV files. Preserve README guidance about VOICEVOX terms and speaker-specific credit requirements.
 
 ## When to use
 
@@ -25,7 +25,7 @@ This repository is intended for OSS publication, but it must not vendor VOICEVOX
 |-----|------------|
 | Edit CLI, Engine client, or output paths | Portable narration in another repo (use `vv-synth` skill) |
 | `uv run vv-synth` smoke tests | User only wants docs without running synthesis |
-| Update README Mermaid / AGENTS.md after API changes | Engine down without user consent to start it |
+| Update README Mermaid / `.claude/rules/architecture.md` after API changes | Engine down without user consent to start it |
 
 Follow [`AGENTS.md`](../../AGENTS.md) and [`README.md`](../../README.md) maintenance sections when changing code.
 
@@ -104,6 +104,7 @@ HTTP timeouts in `engine_client.py`: `/audio_query` 60s, `/synthesis` 120s.
 uv run ruff check .
 uv run ruff format .
 uv run ty check
+uv run pytest
 uv run vv-synth "smoke test"   # Engine must be up
 ```
 

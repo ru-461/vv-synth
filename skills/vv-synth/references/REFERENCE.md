@@ -26,7 +26,7 @@ gh skill install ru-461/vv-synth vv-synth --scope user --agent universal
 # Or pick one host: cursor / claude-code / codex / github-copilot
 gh skill install ru-461/vv-synth vv-synth --scope user --agent claude-code
 
-# From a local clone (before publishing)
+# From a local clone
 gh skill install /path/to/vv-synth vv-synth --from-local --scope user --agent universal
 ```
 

@@ -1,0 +1,26 @@
+---
+paths:
+  - "**/*.py"
+---
+
+# Coding rules
+
+- Python **3.14** (`requires-python = ">=3.14"`).
+- Keep `vv-synth --help` text in **English**. Japanese user prose belongs in `README.ja.md`.
+- Synthesis errors must be a **single English line** on stderr with exit code 1
+  (`typer.echo(..., err=True)`). Do not expose tracebacks (`logger.exception`) to users.
+- Keep business logic in `vv_synth/`; `main.py` stays CLI-only. See `architecture.md`.
+- Absolute imports only — relative imports are banned (`ban-relative-imports = "all"`).
+- Do **not** document `Raises: typer.Exit` in `--help` docstrings (`main.py` ignores `DOC501`
+  for this reason).
+
+## Checks after Python changes
+
+```shell
+uv run ruff check .
+uv run ruff format .
+uv run ty check
+```
+
+`ruff` (`select = ["ALL"]`) and `ty` run in strict mode; both are configured in
+`pyproject.toml`. See `workflow.md` for pytest and smoke testing.

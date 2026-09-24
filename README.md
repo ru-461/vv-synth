@@ -1,147 +1,254 @@
 # vv-synth
 
-[VOICEVOX](https://voicevox.hiroshiba.jp/) Engine でテキストを WAV に合成する CLI です。
+[日本語版](README.ja.md)
 
-`vv-synth` に読み上げテキストを渡すと、合成した WAV を保存します。HTTP API の参考実装は `samples/engine_http_sample.py` に残しています。
+`vv-synth` is a small CLI that sends text to [VOICEVOX](https://voicevox.hiroshiba.jp/) Engine and writes the synthesized audio as a local WAV file.
 
-- **利用者向け:** [クイックスタート](#クイックスタート) / [使い方](#使い方)
-- **メンテナ向け:** [アーキテクチャ](#アーキテクチャ) / [メンテナンス手順](#メンテナンス手順)
-- **AI エージェント向け:** [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) / [`skills/README.md`](skills/README.md)（`gh skill install` で Cursor・Claude Code・Codex 等へ）
-- **Agent Skills:** [`skills/vv-synth/`](skills/vv-synth/)（任意プロジェクト向け TTS）、[`skills/vv-synth-dev/`](skills/vv-synth-dev/)（本リポ開発）
+The project intentionally stays thin:
 
-## 必要なもの
+- `vv-synth` talks to a separately prepared VOICEVOX Engine over HTTP.
+- VOICEVOX Engine, voice libraries, model files, Docker images, official binaries, and generated WAV files are not bundled in this repository.
+- Runtime behavior is centered in [`vv_synth/engine_client.py`](vv_synth/engine_client.py), [`vv_synth/output_paths.py`](vv_synth/output_paths.py), and [`main.py`](main.py).
 
-| 項目 | 用途 |
-|------|------|
-| Python 3.14+ | 実行環境 |
-| [uv](https://docs.astral.sh/uv/) | 依存関係管理 |
-| [Docker](https://www.docker.com/) | VOICEVOX Engine コンテナの起動 |
-| VOICEVOX Engine (起動済み) | HTTP API (`http://127.0.0.1:50021`) — [Docker](#voicevox-engine-の起動-docker) で起動 |
+## Documentation
 
-VOICEVOX CORE (`voicevox_core/`) は `vv-synth` では不要です。コアライブラリを試すときだけ [VOICEVOX CORE のセットアップ](#voicevox-core-のセットアップ-任意) を参照してください。
+- **Users:** [Quick Start](#quick-start) / [Usage](#usage)
+- **VOICEVOX terms:** [OSS Publication And VOICEVOX Terms](#oss-publication-and-voicevox-terms)
+- **Maintainers:** [Architecture](#architecture) / [Maintenance](#maintenance)
+- **AI coding agents (Codex CLI / Claude Code recommended):** [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) / [`.claude/rules/`](.claude/rules/) / [`skills/README.md`](skills/README.md)
+- **Agent Skills:** [`skills/vv-synth/`](skills/vv-synth/) for portable TTS, [`skills/vv-synth-dev/`](skills/vv-synth-dev/) for this repository
 
-## VOICEVOX Engine の起動 (Docker)
+## Requirements
 
-`vv-synth` が使うのは **HTTP で応答する Engine だけ** です。GUI の VOICEVOX デスクトップアプリは不要です。  
-本プロジェクトでは **Docker 公式イメージ** で Engine を起動します。
+| Requirement | Purpose |
+|-------------|---------|
+| Python 3.14+ | Runtime |
+| [uv](https://docs.astral.sh/uv/) | Dependency and tool management |
+| [Docker](https://www.docker.com/) | Optional way to run VOICEVOX Engine |
+| VOICEVOX Engine | HTTP API on `http://127.0.0.1:50021`, prepared with Docker or an official binary |
 
-出典: [voicevox/voicevox_engine on Docker Hub](https://hub.docker.com/r/voicevox/voicevox_engine)
+Windows is supported as long as Python, uv, and a reachable VOICEVOX Engine are available. For Windows NVIDIA GPU usage, see [Windows + NVIDIA GPU](#windows--nvidia-gpu-docker-desktop).
 
-### 1. イメージの取得（初回のみ）
+VOICEVOX CORE (`voicevox_core/`) is not required by `vv-synth`.
+
+## OSS Publication And VOICEVOX Terms
+
+`vv-synth` is open source under the MIT License and contains only the small HTTP client CLI. It does not vendor VOICEVOX Engine itself, voice libraries, model files, Docker images, official Windows/macOS/Linux binaries, or generated WAV files.
+
+Users are responsible for checking and following the latest official VOICEVOX terms. Generated audio may require VOICEVOX credit and compliance with each voice library / speaker's own terms. If generated audio is embedded in an application or redistributed, the final distribution must also satisfy those terms and credit requirements.
+
+References:
+
+- [VOICEVOX official software terms](https://voicevox.hiroshiba.jp/term/)
+- [voicevox/voicevox_engine on Docker Hub](https://hub.docker.com/r/voicevox/voicevox_engine)
+- [VOICEVOX Engine Releases](https://github.com/VOICEVOX/voicevox_engine/releases)
+- [VOICEVOX Q&A](https://voicevox.hiroshiba.jp/qa/)
+
+Maintainer checklist for every change and release:
+
+- Confirm the code license in `LICENSE` (MIT) matches the `pyproject.toml` license metadata.
+- Confirm the VOICEVOX official links in this README are current.
+- Confirm VOICEVOX Engine, voice libraries, model files, and generated WAV files are not tracked by Git.
+- If sample audio is ever distributed, confirm speaker-specific terms and credit notation first.
+
+## Prepare VOICEVOX Engine
+
+`vv-synth` only needs an HTTP Engine listening on `http://127.0.0.1:50021`. The VOICEVOX desktop GUI is not required.
+
+Docker users should use the official image. If you do not want Docker, use an official Engine binary from [VOICEVOX Engine Releases](https://github.com/VOICEVOX/voicevox_engine/releases).
+
+Sources: [voicevox/voicevox_engine on Docker Hub](https://hub.docker.com/r/voicevox/voicevox_engine), [Docker Desktop GPU support](https://docs.docker.com/desktop/features/gpu/), [VOICEVOX Q&A](https://voicevox.hiroshiba.jp/qa/)
+
+### Docker CPU
+
+Pull the image:
 
 ```shell
 docker pull voicevox/voicevox_engine:cpu-latest
 ```
 
-Apple Silicon / Intel Mac とも CPU 版で問題ないことが多いです。NVIDIA GPU 環境のみ `nvidia-latest` タグを検討してください（Docker Hub 参照）。
-
-### 2. Engine を起動する
-
-**推奨コマンド**（フォアグラウンド。ログが見え、停止は `Ctrl+C`）:
+Run in the foreground:
 
 ```shell
 docker run --rm -it -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest
 ```
 
-- `--rm` … 停止時にコンテナを削除
-- `-p '127.0.0.1:50021:50021'` … ホストの localhost:50021 をコンテナに転送（`vv-synth` の既定 URL と一致）
-- このターミナルは Engine 起動中は占有されます。合成は **別ターミナル** で `vv-synth` を実行します。
-
-**バックグラウンド起動**（開発で Engine を裏に置きたいとき）:
+Run in the background:
 
 ```shell
 docker run --rm -d -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest
 ```
 
-停止例: `docker ps` で CONTAINER ID を確認し `docker stop <id>`。
+Stop a background container with `docker ps`, then `docker stop <id>`.
 
-### 3. 起動確認
+### Windows + NVIDIA GPU (Docker Desktop)
 
-Engine 起動中に、別ターミナルで:
+Windows GPU usage with Docker requires:
+
+- Windows 10 / 11 with an NVIDIA GPU
+- Docker Desktop with the WSL2 backend enabled
+- A current NVIDIA driver that supports WSL2 GPU usage
+- A current WSL2 Linux kernel (`wsl --update` in PowerShell)
+
+Check whether Docker can see the GPU:
+
+```shell
+docker run --rm -it --gpus=all nvcr.io/nvidia/k8s/cuda-sample:nbody nbody -gpu -benchmark
+```
+
+Run the NVIDIA GPU Engine image:
+
+```shell
+docker pull voicevox/voicevox_engine:nvidia-latest
+docker run --rm -it --gpus all -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:nvidia-latest
+```
+
+Background:
+
+```shell
+docker run --rm -d --gpus all -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:nvidia-latest
+```
+
+After the Engine is listening, `vv-synth` usage is the same as CPU mode. GPU selection is an Engine concern; `vv-synth` does not need a GPU-specific option.
+
+### Official Engine Binaries
+
+If you do not use Docker, download an official binary for your OS from [VOICEVOX Engine Releases](https://github.com/VOICEVOX/voicevox_engine/releases). Windows builds include CPU, GPU/DirectML, and GPU/CUDA variants.
+
+Once `http://127.0.0.1:50021/version` responds, `vv-synth` can use the binary Engine exactly like the Docker Engine. If you change the port, pass `--engine-url` or set `VOICEVOX_ENGINE_URL`.
+
+### Verify The Engine
+
+In another terminal:
 
 ```shell
 curl -sSf http://127.0.0.1:50021/version
 ```
 
-JSON が返れば OK。話者 ID は [http://127.0.0.1:50021/docs](http://127.0.0.1:50021/docs) の `/speakers`。
+If JSON is returned, the Engine is ready. Speaker style IDs are available from `/speakers` in [http://127.0.0.1:50021/docs](http://127.0.0.1:50021/docs).
 
-### 4. `vv-synth` で合成する
+### Engine Troubleshooting
 
-```shell
-vv-synth "こんにちは、Docker Engine のテストです。"
-```
+| Symptom | Check |
+|---------|-------|
+| `Cannot connect to the Docker daemon` | Start Docker Desktop, or use an official Engine binary |
+| `port is already allocated` on 50021 | Stop other Engine containers or the VOICEVOX desktop app |
+| GPU container cannot select a driver | Confirm Docker Desktop WSL2 backend, NVIDIA driver, and `wsl --update` |
+| `vv-synth` cannot connect | Confirm `curl .../version` works and the port is `127.0.0.1:50021` |
+| HTTP 4xx for speaker | Pick a valid style ID from `/speakers` |
 
-成功するとカレントディレクトリの `output/YYYYMMDD-HHMMSS.wav` ができます。
+Do not run multiple Engines on port 50021 at the same time.
 
-### トラブルシュート（Docker）
-
-| 症状 | 対処 |
-|------|------|
-| `Cannot connect to the Docker daemon` | Docker Desktop を起動 |
-| `port is already allocated` (50021) | 既存の Engine コンテナまたはデスクトップ VOICEVOX を停止 |
-| `vv-synth` が接続できない | コンテナが動いているか `curl .../version`、ポートが `127.0.0.1:50021` か確認 |
-| 話者 ID エラー (HTTP 4xx) | `/docs` の `/speakers` で `--speaker` を合わせる |
-
-**注意:** デスクトップ VOICEVOX アプリもポート 50021 を使います。Docker Engine と **同時に起動しない** でください。
-
-## クイックスタート
+## Quick Start
 
 ```shell
 uv sync
 uv run vv-synth --help
 ```
 
-[Docker で Engine を起動](#voicevox-engine-の起動-docker) したあと（別ターミナルで）:
+After starting VOICEVOX Engine with Docker or an official binary:
 
 ```shell
-vv-synth "こんにちは、音声合成のテストです。"
+uv run vv-synth "こんにちは、音声合成のテストです。"
 ```
 
-`vv-synth` が PATH にない場合は [グローバルインストール](#グローバルインストール) を行うか、プロジェクト内では `uv run vv-synth` を使います。
+The default output is `output/YYYYMMDD-HHMMSS.wav` (local time) under the directory where you run the command. The `output/` directory is created automatically on first run. Set `VV_SYNTH_OUTPUT_DIR` to change the default directory globally.
 
-成功すると、実行したディレクトリの `output/YYYYMMDD-HHMMSS.wav` が作成されます。
-
-## グローバルインストール
+## Global Install
 
 ```shell
 uv tool install --editable .
 ```
 
-`~/.local/bin` が PATH にない場合:
+Two commands are installed and behave identically:
+
+- `vv-synth` — the canonical name
+- `vvs` — short alias
+
+If `~/.local/bin` is not on `PATH`:
 
 ```shell
 uv tool update-shell
-# または
+# or
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-旧パッケージ名・旧ディレクトリ名からの移行:
+Uninstall:
 
 ```shell
-uv tool uninstall voicevox-playground   # 旧 uv tool 名（あれば）
-uv tool uninstall vv-synth              # パスが変わった場合は再インストールのため
-cd /path/to/vv-synth                    # 旧: voicevox-playground
+uv tool uninstall vv-synth
+```
+
+If the repository path changed, reinstall:
+
+```shell
+uv tool uninstall vv-synth
+cd /path/to/vv-synth
 uv tool install --editable .
 ```
 
-アンインストール: `uv tool uninstall vv-synth`
+## Agent Skill Local Install
 
-## 使い方
+The portable `vv-synth` Agent Skill lets coding agents use this CLI from other projects. `gh skill` is the recommended installation path; `npx skills` (Vercel Labs) is a supported alternative.
+
+### Recommended: `gh skill`
+
+Requires GitHub CLI v2.90+:
+
+```shell
+cd /path/to/vv-synth
+gh skill install . vv-synth --from-local --scope user --agent universal
+```
+
+Use a specific agent target if you only want the skill installed for one host:
+
+```shell
+gh skill install . vv-synth --from-local --scope user --agent codex
+gh skill install . vv-synth --from-local --scope user --agent claude-code
+```
+
+Preview before installing:
+
+```shell
+gh skill preview . vv-synth --from-local
+```
+
+### Alternative: `npx skills`
+
+Requires Node.js; no global install needed. `--global` targets your user directory (omit it for the current project only):
+
+```shell
+cd /path/to/vv-synth
+npx skills@latest add . --skill vv-synth --global
+```
+
+Target one agent, or list the repository's skills before installing:
+
+```shell
+npx skills@latest add . --skill vv-synth --global --agent claude-code
+npx skills@latest add . --list
+```
+
+See [`skills/README.md`](skills/README.md) for publishing, updates, and project-scoped installs.
+
+## Usage
 
 ```shell
 vv-synth MESSAGE [OPTIONS]
 ```
 
-`vv-synth --help` のオプション説明は英語です。
+`vv-synth --help` is written in English.
 
-| オプション | 短縮 | 既定値 | 説明 |
-|------------|------|--------|------|
-| `MESSAGE` | — | (必須) | 読み上げるテキスト |
-| `--output` | `-o` | 自動命名 | 出力 WAV のファイル名またはパス |
-| `--output-dir` | — | `output` | WAV を保存するディレクトリ |
-| `--speaker` | `-s` | `2` | 話者スタイル ID |
-| `--speed` | — | `1.0` | 話速 (`1.0` が標準。大きいほど速い) |
-| `--engine-url` | — | `http://127.0.0.1:50021` | Engine の URL (`VOICEVOX_ENGINE_URL` 可) |
+| Option | Short | Default | Description |
+|--------|-------|---------|-------------|
+| `MESSAGE` | - | required | Text to synthesize |
+| `--output` | `-o` | automatic timestamp | Output WAV file name or path |
+| `--output-dir` | - | `output` | Directory for WAV files when `--output` is a basename; can also be set with `VV_SYNTH_OUTPUT_DIR` |
+| `--speaker` | `-s` | `2` | VOICEVOX speaker style ID |
+| `--speed` | - | `1.0` | Speech speed (`1.0` is normal; larger is faster) |
+| `--engine-url` | - | `http://127.0.0.1:50021` | Engine URL; can also be set with `VOICEVOX_ENGINE_URL` |
+
+Examples:
 
 ```shell
 vv-synth "テストです" -o hello.wav
@@ -149,13 +256,13 @@ vv-synth "テストです" --output-dir artifacts
 vv-synth "テストです" -s 3 --speed 1.5
 ```
 
-話者スタイル ID: [http://127.0.0.1:50021/docs](http://127.0.0.1:50021/docs) の `/speakers`
+Speaker style IDs: [http://127.0.0.1:50021/docs](http://127.0.0.1:50021/docs), `/speakers`
 
-## アーキテクチャ
+## Architecture
 
-### コンポーネント構成
+### Component Layout
 
-メンテナンス時は、この図の **ノード名・矢印・モジュール境界** が実装と一致しているかを確認してください。
+Keep this diagram aligned with the implementation when module boundaries change.
 
 ```mermaid
 flowchart TB
@@ -165,12 +272,12 @@ flowchart TB
     client["vv_synth/engine_client.py"]
   end
 
-  subgraph external["外部"]
-    engine["VOICEVOX Engine\nDocker / :50021"]
+  subgraph external["External"]
+    engine["VOICEVOX Engine\nDocker or binary / :50021"]
   end
 
-  subgraph fs["ファイルシステム"]
-    outdir["./output/\n(カレント基準)"]
+  subgraph fs["Filesystem"]
+    outdir["./output/\n(current working directory)"]
   end
 
   user(["User / Agent"]) --> main
@@ -182,16 +289,15 @@ flowchart TB
   client --> outdir
 ```
 
-| パス | 責務 |
-|------|------|
-| `main.py` | Typer CLI、`vv-synth` エントリーポイント |
-| `vv_synth/output_paths.py` | 出力パス解決 (`output/`、`-o`、タイムスタンプ名) |
-| `vv_synth/engine_client.py` | Engine HTTP 呼び出し、WAV 保存 |
-| `samples/engine_http_sample.py` | Typer 導入前の参考実装 (CLI からは未使用) |
+| Path | Responsibility |
+|------|----------------|
+| `main.py` | Typer CLI and `vv-synth` entry point |
+| `vv_synth/output_paths.py` | Output path resolution (`output/`, `-o`, timestamp names) |
+| `vv_synth/engine_client.py` | Engine HTTP calls, speech rate, WAV saving |
 
-### 合成処理の流れ
+### Synthesis Flow
 
-Engine API の呼び出し順序を変えたときは、このシーケンス図も更新してください。
+Update this sequence if the Engine API call order changes.
 
 ```mermaid
 sequenceDiagram
@@ -215,144 +321,130 @@ sequenceDiagram
   M-->>U: INFO wrote path
 ```
 
-### プロジェクト構成
+### Project Layout
 
-```
+```text
 vv-synth/
 ├── main.py
 ├── vv_synth/
 │   ├── engine_client.py
 │   └── output_paths.py
-├── samples/
-│   └── engine_http_sample.py
-├── output/              # Git 除外 (WAV)
-├── pyproject.toml       # vv-synth パッケージ、[project.scripts]
-├── AGENTS.md            # Cursor 等向け
-├── CLAUDE.md            # Claude Code 向け
+├── tests/               # pytest suite (Engine mocked; no running Engine needed)
+├── output/              # Git-ignored WAV output, except .gitkeep
+├── docs/                # Japanese project overview (OVERVIEW.ja.md)
+├── skills/              # Agent Skills (vv-synth, vv-synth-dev)
+├── .claude/rules/       # Agent rules referenced by AGENTS.md
+├── .github/             # CI workflow, Dependabot, and issue / PR templates
+├── pyproject.toml       # vv-synth package and [project.scripts]
+├── AGENTS.md            # Shared agent guidance
+├── CLAUDE.md            # Claude Code summary
+├── CONTRIBUTING.md      # Contribution guide
+├── SECURITY.md          # Security policy
+├── README.md            # English main README
+├── README.ja.md         # Japanese README
+├── LICENSE              # MIT (code only; generated audio follows VOICEVOX terms)
 └── uv.lock
 ```
 
-## 出力先 (`output/`)
+## Output Directory
 
-合成 WAV は **コマンドを実行したディレクトリ** の `output/` が既定です。詳細は [output/README.md](output/README.md)。
+By default, WAV files are written under `output/` relative to the command's current working directory.
 
-| 指定 | 保存先の例 |
-|------|------------|
-| `-o` 省略 | `output/20260521-143052.wav` |
+| Invocation | Output example |
+|------------|----------------|
+| no `-o` | `output/20260521-143052.wav` |
 | `-o hello.wav` | `output/hello.wav` |
-| `-o path/to/a.wav` | 指定パスそのまま |
+| `-o path/to/a.wav` | `path/to/a.wav` |
 | `--output-dir artifacts` | `artifacts/...` |
 
-## VOICEVOX CORE のセットアップ (任意)
+## VOICEVOX CORE
 
-```shell
-binary=download-osx-arm64  # Intel Mac: download-osx-x64
-curl -sSfL "https://github.com/VOICEVOX/voicevox_core/releases/latest/download/${binary}" -o download
-chmod +x download
-./download
-```
+`vv-synth` only uses the VOICEVOX Engine HTTP API. VOICEVOX CORE, voice libraries, and model files are not bundled with this CLI and are not part of its setup flow.
 
-手順まとめ: Notion「VOICEVOXセットアップ」
+## Maintenance
 
-## 参考用サンプル
-
-```shell
-uv run python samples/engine_http_sample.py
-```
-
-## メンテナンス手順
-
-このリポジトリを継続的に直すときの標準フローです。AI エージェントが変更するときも同じ手順に従ってください。
-
-### 1. 環境の準備
+### Environment
 
 ```shell
 uv sync --group dev
 ```
 
-Docker で Engine を起動し、`curl -sSf http://127.0.0.1:50021/version` が成功することを確認します（[起動手順](#voicevox-engine-の起動-docker)）。
+Start VOICEVOX Engine with Docker or an official binary, then confirm:
 
-### 2. 変更の種類ごとの編集先
+```shell
+curl -sSf http://127.0.0.1:50021/version
+```
 
-| 変更内容 | 主に触るファイル | あわせて更新 |
-|----------|------------------|--------------|
-| CLI オプション・ヘルプ | `main.py` | README [使い方](#使い方)、`--help` 文言 |
-| 出力パス・ファイル名規則 | `vv_synth/output_paths.py` | README [出力先](#出力先-output)、`output/README.md` |
-| Engine API・話速・エラー | `vv_synth/engine_client.py` | 下記 [グラフの更新](#3-グラフmermaidの更新) |
-| グローバルコマンド名 | `pyproject.toml` `[project.scripts]` | README、`uv tool install` 手順 |
-| 依存バージョン | `pyproject.toml` | `uv lock` → `uv.lock` |
-| AI 向けルール・境界 | `AGENTS.md`, `CLAUDE.md` | 本 README のアーキテクチャ表 |
+### Change Map
 
-### 3. グラフ (Mermaid) の更新
+| Change | Primary files | Also update |
+|--------|---------------|-------------|
+| CLI options/help | `main.py` | [Usage](#usage), `vv-synth --help` wording |
+| Output path rules | `vv_synth/output_paths.py` | [Output Directory](#output-directory) |
+| Engine API/speed/errors | `vv_synth/engine_client.py` | Mermaid diagrams |
+| Global command name | `pyproject.toml` `[project.scripts]` | install instructions |
+| Dependency versions | `pyproject.toml` | `uv lock` / `uv.lock` |
+| Agent rules/boundaries | `AGENTS.md`, `CLAUDE.md`, `.claude/rules/*.md` | Architecture tables |
+| Engine setup or VOICEVOX terms guidance | README files, `skills/*/SKILL.md` | official links and Docker/binary parity |
 
-アーキテクチャ図は **この README 内の Mermaid ブロック** にのみ置いています（別ファイルの図はありません）。
+### Mermaid Updates
 
-**更新が必要なタイミング**
+The canonical architecture diagrams live in this README. Update them when:
 
-- モジュールの追加・リネーム・責務の変更
-- Engine API エンドポイントや呼び出し順の変更
-- CLI からファイルシステム・外部サービスへの依存関係の変更
+- modules are added, renamed, or change responsibility;
+- Engine API endpoints or call order change;
+- CLI dependencies on the filesystem or external services change.
 
-**手順**
+Keep the copies in `README.ja.md` and `docs/OVERVIEW.ja.md` aligned when diagram content changes.
 
-1. [コンポーネント構成](#コンポーネント構成) の `flowchart` を編集する  
-   - ノード ID は英数字推奨 (`main`, `client` など)  
-   - 表示ラベルに **実際のファイルパス** を書く (`vv_synth/engine_client.py` など)
-2. API フローを変えたら [合成処理の流れ](#合成処理の流れ) の `sequenceDiagram` も同期する  
-   - `POST` パスと関数名 (`synthesize_text_to_file` 等) を実装と一致させる
-3. Cursor / GitHub の Markdown プレビューでレンダリングを確認する
-4. [アーキテクチャ](#アーキテクチャ) の表（モジュール責務）と `AGENTS.md` の構成表を同じ内容に揃える
-
-**更新不要なことが多い変更**
-
-- ログメッセージのみ
-- リファクタリングでファイル名・公開 API が変わらない場合
-- `output/*.wav` など Git 除外の生成物
-
-### 4. 品質チェック
+### Quality Checks
 
 ```shell
 uv run ruff check .
 uv run ruff format .
 uv run ty check
+uv run pytest
 ```
 
-手動確認 (Engine 起動済み):
+`pytest` runs the unit test suite in `tests/`. Tests mock the Engine over `urllib`, so no
+running VOICEVOX Engine is required.
+
+Manual smoke test with Engine running:
 
 ```shell
-uv run vv-synth "メンテナンス確認"
+uv run vv-synth "maintenance smoke test"
 ls -la output/
 ```
 
-`[project.scripts]` やパッケージ構成を変えた場合:
+If package entry points changed:
 
 ```shell
 uv tool install --editable .
 vv-synth --help
 ```
 
-### 5. ドキュメント同期チェックリスト
+### Documentation Sync Checklist
 
-コミット前に次を確認します。
+- [ ] `README.md` and `README.ja.md` describe the same user-facing behavior.
+- [ ] Mermaid diagrams match the implementation.
+- [ ] `AGENTS.md` / `CLAUDE.md` and Agent Skills are current.
+- [ ] CLI option tables match `vv-synth --help`.
+- [ ] VOICEVOX Engine / voice library terms links and the "do not vendor external assets" policy remain intact.
+- [ ] `LICENSE` and the `pyproject.toml` license metadata still match.
 
-- [ ] README の Mermaid 2 枚が実装と一致している
-- [ ] `AGENTS.md` / `CLAUDE.md` の構成表・変更プレイブックが最新
-- [ ] CLI オプション表と `vv-synth --help` が一致している
-- [ ] `output/README.md`（出力規則を変えた場合）
+### Commit Policy
 
-### 6. コミット
+- Commit only when explicitly requested.
+- Use an English one-line message: `prefix: message`.
+- Examples: `feat: add pitch option`, `docs: update engine setup`.
+- Do not commit `output/*.wav`, `voicevox_core/`, `download`, VOICEVOX Engine binaries, models, voice libraries, or virtual environments.
 
-- メッセージ: 英語ワンライン `prefix: message`  
-  例: `feat: add --pitch option`, `docs: update architecture diagram`
-- コミットは依頼があるときのみ（エージェントは勝手に commit しない）
-- Git に含めない: `output/*.wav`, `voicevox_core/`, `download`, `.venv/`
+## Troubleshooting
 
-## トラブルシュート
-
-| 症状 | 確認すること |
-|------|----------------|
-| `command not found: vv-synth` | `uv tool install --editable .` と PATH (`~/.local/bin`) |
-| `Connection refused` | [Docker で Engine を起動](#voicevox-engine-の起動-docker)、ポート 50021 |
-| HTTP 4xx | `--speaker` のスタイル ID |
-| 音声が保存されない | カレントディレクトリ、`--output-dir`、書き込み権限 |
-| Mermaid が表示されない | README のコードフェンスが ` ```mermaid ` であること |
+| Symptom | Check |
+|---------|-------|
+| `command not found: vv-synth` | `uv tool install --editable .` and PATH (`~/.local/bin`) |
+| `Connection refused` | Start Engine with Docker or an official binary; confirm port 50021 |
+| HTTP 4xx | Check the `--speaker` style ID |
+| WAV is not saved | Current working directory, `--output-dir`, and write permissions |
+| Mermaid does not render | Markdown fence must be ` ```mermaid ` |

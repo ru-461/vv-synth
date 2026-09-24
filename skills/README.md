@@ -13,7 +13,7 @@ The canonical files are `skills/*/SKILL.md`. Install them via `gh skill install`
 
 ## Global Install (Recommended)
 
-Requires GitHub CLI **v2.90+**. After pushing the repository to GitHub and publishing it as `ru-461/vv-synth`:
+Requires GitHub CLI **v2.90+**. Install from the `ru-461/vv-synth` repository on GitHub:
 
 ```shell
 # Shared across multiple agents, such as ~/.agents/skills
@@ -29,7 +29,7 @@ gh skill install ru-461/vv-synth vv-synth --scope user --agent github-copilot
 gh skill install ru-461/vv-synth vv-synth-dev --scope user --agent cursor
 ```
 
-From a local clone before publishing:
+From a local clone:
 
 ```shell
 gh skill install /path/to/vv-synth vv-synth --from-local --scope user --agent universal
@@ -54,7 +54,7 @@ npx skills@latest add ru-461/vv-synth --skill vv-synth --global
 # One agent
 npx skills@latest add ru-461/vv-synth --skill vv-synth --global --agent claude-code
 
-# From a local clone before publishing
+# From a local clone
 npx skills@latest add /path/to/vv-synth --skill vv-synth --global
 
 # Update later
