@@ -30,7 +30,9 @@ WAV 音声に変換する、薄い（thin）Typer 製コマンドラインツー
 - 話速（`--speed` / `speedScale`）の調整
 - 話者スタイル ID（`--speaker`）の指定
 - 出力先の柔軟な解決（タイムスタンプ自動命名 / ファイル名 / フルパス）
-- 失敗時は 1 行の英語エラーメッセージ（stderr、終了コード 1。トレースバックは出さない）
+- 成功時は保存先を `INFO: wrote <絶対パス>` として stdout に出力
+- 合成・ファイル入出力の失敗時は 1 行の英語エラーメッセージ（stderr、終了コード 1。トレースバックは出さない）
+- 引数・オプションが不正な場合は Typer の使用方法エラー（stderr、終了コード 2）
 
 ## 3. CLI の使い方
 
@@ -47,7 +49,7 @@ vv-synth MESSAGE [OPTIONS]
 | `--output` | `-o` | 自動命名 | 出力 WAV のファイル名またはパス |
 | `--output-dir` | — | `output` | WAV 保存ディレクトリ（環境変数 `VV_SYNTH_OUTPUT_DIR` 可） |
 | `--speaker` | `-s` | `2` | 話者スタイル ID（Engine の `GET /speakers`） |
-| `--speed` | — | `1.0` | 話速（`1.0` が標準。範囲 `0.01`〜`10.0`） |
+| `--speed` | — | `1.0` | 話速（有限の数値 `0.01`〜`10.0`。`1.0` が標準） |
 | `--engine-url` | — | `http://127.0.0.1:50021` | Engine の URL（環境変数 `VOICEVOX_ENGINE_URL` 可） |
 
 `--help` の文言は英語です（日本語の説明は README.ja.md 側に置く方針）。
@@ -73,7 +75,7 @@ sequenceDiagram
     E-->>C: WAV bytes
     C->>C: save_wav()
     C-->>M: Path
-    M-->>U: INFO wrote path
+    M-->>U: INFO wrote path (stdout)
 ```
 
 HTTP タイムアウトは `/audio_query` が 60 秒、`/synthesis` が 120 秒です。

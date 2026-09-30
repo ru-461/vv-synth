@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import logging
+import math
 from pathlib import Path
+from typing import Never
 
 import typer
 
@@ -19,8 +20,6 @@ from vv_synth.output_paths import (
     resolve_output_file,
 )
 
-logger = logging.getLogger(__name__)
-
 app = typer.Typer(
     name="vv-synth",
     add_completion=False,
@@ -28,6 +27,32 @@ app = typer.Typer(
     rich_markup_mode=None,
     help="Synthesize text to WAV via VOICEVOX Engine.",
 )
+
+
+def _validate_speed(value: float) -> float:
+    """Reject non-finite CLI speech rates.
+
+    Args:
+        value: Parsed speech rate.
+
+    Returns:
+        Validated speech rate.
+    """
+    if not math.isfinite(value):
+        msg = "Speed must be a finite number."
+        raise typer.BadParameter(msg)
+
+    return value
+
+
+def _exit_with_error(message: str) -> Never:
+    """Print a single-line synthesis error and exit.
+
+    Args:
+        message: Error description to print on stderr.
+    """
+    typer.echo(" ".join(message.splitlines()), err=True)
+    raise typer.Exit(code=1) from None
 
 
 @app.command()
@@ -60,7 +85,8 @@ def synth(
         "--speed",
         min=0.01,
         max=10.0,
-        help="Speech rate; 1.0 is normal, higher is faster.",
+        callback=_validate_speed,
+        help="Finite speech rate; 1.0 is normal, higher is faster.",
     ),
     engine_url: str = typer.Option(
         DEFAULT_ENGINE_URL,
@@ -75,19 +101,10 @@ def synth(
     in the current directory (auto-created). Use --output-dir or
     set VV_SYNTH_OUTPUT_DIR to change the directory.
     """
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-
     try:
         output_path = resolve_output_file(output_dir=output_dir, filename=output)
     except OSError as exc:
-        typer.echo(f"Could not create the output directory: {exc}", err=True)
-        raise typer.Exit(code=1) from None
-
-    logger.info("engine: %s", engine_url)
-    logger.info("speaker: %s", speaker)
-    logger.info("speed: %s", speed)
-    logger.info("text: %s", message)
-    logger.info("output: %s", output_path)
+        _exit_with_error(f"Could not create the output directory: {exc}")
 
     try:
         saved = synthesize_text_to_file(
@@ -98,13 +115,11 @@ def synth(
             speed_scale=speed,
         )
     except (EngineClientError, ValueError, TypeError) as exc:
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(code=1) from None
+        _exit_with_error(str(exc))
     except OSError as exc:
-        typer.echo(f"Could not write the WAV file: {exc}", err=True)
-        raise typer.Exit(code=1) from None
+        _exit_with_error(f"Could not write the WAV file: {exc}")
 
-    logger.info("wrote %s", saved.resolve())
+    typer.echo(f"INFO: wrote {saved.resolve()}")
 
 
 def main() -> None:

@@ -74,14 +74,16 @@ Global CLI after `uv tool install --editable .` is also fine.
 | `--output` | `-o` | auto timestamp under `output/` (local time) | File name or full path |
 | `--output-dir` | — | `output` | Directory when `-o` is basename only; envvar `VV_SYNTH_OUTPUT_DIR` |
 | `--speaker` | `-s` | `2` | http://127.0.0.1:50021/docs `/speakers` |
-| `--speed` | — | `1.0` | `0.01`–`10.0` |
+| `--speed` | — | `1.0` | Finite number from `0.01` to `10.0` |
 | `--engine-url` | — | `http://127.0.0.1:50021` | `VOICEVOX_ENGINE_URL` |
 
-`vv-synth --help` is in English. On failure, stderr shows **one English line** (exit 1); do not expect a traceback.
+`vv-synth --help` is in English. Synthesis and file I/O errors show **one English line** on stderr (exit 1); do not expect a traceback. Invalid arguments or options produce a Typer usage error on stderr (exit 2).
 
 ## Python API (in-repo only)
 
 Prefer the CLI. For scripts inside this repository:
+
+Python API speech rates must be finite and positive.
 
 ```python
 from pathlib import Path
@@ -109,6 +111,8 @@ uv run vv-synth "smoke test"   # Engine must be up
 ```
 
 ## Success criteria
+
+The CLI prints the saved file's absolute path to stdout:
 
 ```text
 INFO: wrote /path/to/file.wav

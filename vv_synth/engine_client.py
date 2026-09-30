@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import http.client
 import json
+import math
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -93,8 +94,8 @@ def save_wav(path: Path, wav_data: bytes) -> None:
 
 def apply_speed_scale(audio_query: AudioQuery, speed_scale: float) -> AudioQuery:
     """Set the speech rate (speedScale) on an AudioQuery."""
-    if speed_scale <= 0:
-        msg = f"speed_scale must be positive: {speed_scale}"
+    if not math.isfinite(speed_scale) or speed_scale <= 0:
+        msg = f"speed_scale must be finite and positive: {speed_scale}"
         raise ValueError(msg)
 
     audio_query["speedScale"] = speed_scale

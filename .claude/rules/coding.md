@@ -9,6 +9,9 @@ paths:
 - Keep `vv-synth --help` text in **English**. Japanese user prose belongs in `README.ja.md`.
 - Synthesis errors must be a **single English line** on stderr with exit code 1
   (`typer.echo(..., err=True)`). Do not expose tracebacks (`logger.exception`) to users.
+- Print `INFO: wrote <absolute-path>` to stdout on success. Argument and option parsing
+  errors use Typer's usage error on stderr with exit code 2.
+- CLI speech rates must be finite numbers from `0.01` to `10.0`.
 - Keep business logic in `vv_synth/`; `main.py` stays CLI-only. See `architecture.md`.
 - Absolute imports only — relative imports are banned (`ban-relative-imports = "all"`).
 - Do **not** document `Raises: typer.Exit` in `--help` docstrings (`main.py` ignores `DOC501`

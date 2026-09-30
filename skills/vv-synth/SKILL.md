@@ -105,10 +105,10 @@ vv-synth "Faster line" --speaker 3 --speed 1.5
 | `--output` | `-o` | auto `output/YYYYMMDD-HHMMSS.wav` (local time) | Basename → under `--output-dir`; path with dirs → used as-is |
 | `--output-dir` | — | `output` | Directory when `-o` is only a filename; envvar `VV_SYNTH_OUTPUT_DIR` |
 | `--speaker` | `-s` | `2` | Style ID — http://127.0.0.1:50021/docs `/speakers` |
-| `--speed` | — | `1.0` | `0.01`–`10.0`; higher = faster |
+| `--speed` | — | `1.0` | Finite number from `0.01` to `10.0`; higher = faster |
 | `--engine-url` | — | `http://127.0.0.1:50021` | Env: `VOICEVOX_ENGINE_URL` |
 
-`vv-synth --help` is in English. CLI errors are a **single English line** on stderr (exit code 1).
+`vv-synth --help` is in English. Synthesis and file I/O errors are a **single English line** on stderr (exit code 1). Invalid arguments or options produce a Typer usage error on stderr (exit code 2).
 
 ### HTTP timeouts (per request)
 
@@ -125,6 +125,8 @@ Split by sentence or paragraph; each `vv-synth` call gets its own 120s synthesis
 
 ## Success criteria
 
+The CLI prints the saved file's absolute path to stdout:
+
 ```text
 INFO: wrote /path/to/file.wav
 ```
@@ -139,6 +141,7 @@ Confirm the file exists on disk; return the resolved path to the user. Do not `g
 | `Connection refused` | Start Engine; `curl .../version` → 200 |
 | HTTP 4xx | Fix `--speaker` using `/speakers` in Engine docs |
 | Exit code 1 | Read one-line stderr; do not expect a traceback |
+| Exit code 2 | Read the usage error on stderr and correct the arguments or options |
 | Hang then failure | Text may be too long for one request; split and retry |
 
 ## Agent workflow checklist

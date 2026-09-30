@@ -239,13 +239,15 @@ vv-synth MESSAGE [OPTIONS]
 
 `vv-synth --help` is written in English.
 
+A successful run prints `INFO: wrote <absolute-path>` to stdout. Synthesis and file I/O errors print one English line to stderr and exit with code 1. Invalid arguments or options produce a Typer usage error on stderr and exit with code 2.
+
 | Option | Short | Default | Description |
 |--------|-------|---------|-------------|
 | `MESSAGE` | - | required | Text to synthesize |
 | `--output` | `-o` | automatic timestamp | Output WAV file name or path |
 | `--output-dir` | - | `output` | Directory for WAV files when `--output` is a basename; can also be set with `VV_SYNTH_OUTPUT_DIR` |
 | `--speaker` | `-s` | `2` | VOICEVOX speaker style ID |
-| `--speed` | - | `1.0` | Speech speed (`1.0` is normal; larger is faster) |
+| `--speed` | - | `1.0` | Finite speech speed from `0.01` to `10.0` (`1.0` is normal; larger is faster) |
 | `--engine-url` | - | `http://127.0.0.1:50021` | Engine URL; can also be set with `VOICEVOX_ENGINE_URL` |
 
 Examples:
@@ -318,7 +320,7 @@ sequenceDiagram
   E-->>C: WAV bytes
   C->>C: save_wav()
   C-->>M: Path
-  M-->>U: INFO wrote path
+  M-->>U: INFO wrote path (stdout)
 ```
 
 ### Project Layout

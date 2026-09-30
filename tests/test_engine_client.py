@@ -53,6 +53,18 @@ def test_apply_speed_scale_negative_raises() -> None:
         apply_speed_scale({}, -1.0)
 
 
+@pytest.mark.parametrize("speed", [float("nan"), float("inf"), -float("inf")])
+def test_apply_speed_scale_nonfinite_raises_without_mutating_query(
+    speed: float,
+) -> None:
+    query = {"speedScale": 1.0}
+
+    with pytest.raises(ValueError, match="finite"):
+        apply_speed_scale(query, speed)
+
+    assert query == {"speedScale": 1.0}
+
+
 def test_save_wav_writes_bytes(tmp_path: Path) -> None:
     path = tmp_path / "out.wav"
 

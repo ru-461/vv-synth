@@ -68,6 +68,9 @@ ls -la output/
   `README.ja.md`.
 - Synthesis errors must be a **single English line** on stderr (exit code 1). Do not expose
   tracebacks to users.
+- Print `INFO: wrote <absolute-path>` to stdout on success. Argument and option parsing
+  errors use Typer's usage error on stderr (exit code 2).
+- CLI speech rates must be finite numbers from `0.01` to `10.0`.
 - Keep business logic in `vv_synth/`; `main.py` stays CLI-only.
 
 ## Documentation sync
