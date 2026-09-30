@@ -35,7 +35,9 @@ VOICEVOX CORE (`voicevox_core/`) is not required by `vv-synth`.
 
 `vv-synth` is open source under the MIT License and contains only the small HTTP client CLI. It does not vendor VOICEVOX Engine itself, voice libraries, model files, Docker images, official Windows/macOS/Linux binaries, or generated WAV files.
 
-Users are responsible for checking and following the latest official VOICEVOX terms. Generated audio may require VOICEVOX credit and compliance with each voice library / speaker's own terms. If generated audio is embedded in an application or redistributed, the final distribution must also satisfy those terms and credit requirements.
+Users are responsible for checking and following the latest official VOICEVOX terms. Using generated audio requires credit identifying VOICEVOX and compliance with each voice library / speaker's own terms. The required credit may be omitted only where an applicable license explicitly permits it. If generated audio is embedded in an application or redistributed, the final distribution must also satisfy those terms and credit requirements.
+
+When granting others permission to use generated audio, you must require them to comply with the applicable voice library terms and to pass on these same obligations whenever they grant further permission to use the audio, as required by items 2 and 3 of the official VOICEVOX software terms.
 
 References:
 
