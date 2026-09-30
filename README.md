@@ -47,6 +47,7 @@ References:
 Maintainer checklist for every change and release:
 
 - Confirm the code license in `LICENSE` (MIT) matches the `pyproject.toml` license metadata.
+- Confirm `version` in `pyproject.toml`, `metadata.version` in both `skills/*/SKILL.md` files, and the release tag `v<version>` (created by `gh skill publish --tag`) match.
 - Confirm the VOICEVOX official links in this README are current.
 - Confirm VOICEVOX Engine, voice libraries, model files, and generated WAV files are not tracked by Git.
 - If sample audio is ever distributed, confirm speaker-specific terms and credit notation first.
@@ -142,6 +143,8 @@ Do not run multiple Engines on port 50021 at the same time.
 ## Quick Start
 
 ```shell
+git clone https://github.com/ru-461/vv-synth.git
+cd vv-synth
 uv sync
 uv run vv-synth --help
 ```
@@ -155,6 +158,14 @@ uv run vv-synth "こんにちは、音声合成のテストです。"
 The default output is `output/YYYYMMDD-HHMMSS.wav` (local time) under the directory where you run the command. The `output/` directory is created automatically on first run. Set `VV_SYNTH_OUTPUT_DIR` to change the default directory globally.
 
 ## Global Install
+
+Install directly from GitHub (no clone needed):
+
+```shell
+uv tool install git+https://github.com/ru-461/vv-synth
+```
+
+From a local clone (editable):
 
 ```shell
 uv tool install --editable .
@@ -179,7 +190,7 @@ Uninstall:
 uv tool uninstall vv-synth
 ```
 
-If the repository path changed, reinstall:
+If you installed in editable mode and the repository path changed, reinstall:
 
 ```shell
 uv tool uninstall vv-synth
@@ -207,10 +218,10 @@ gh skill install . vv-synth --from-local --scope user --agent codex
 gh skill install . vv-synth --from-local --scope user --agent claude-code
 ```
 
-Preview before installing:
+Preview the published skill before installing (reads from GitHub; in a local clone, read `skills/vv-synth/SKILL.md` directly):
 
 ```shell
-gh skill preview . vv-synth --from-local
+gh skill preview ru-461/vv-synth vv-synth
 ```
 
 ### Alternative: `npx skills`

@@ -9,8 +9,8 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.14+, uv, and a reachable VOICEVOX Engine on port 50021. Engine may be Docker CPU/GPU or an official binary. Windows Docker GPU requires Docker Desktop WSL2 backend with NVIDIA GPU.
 metadata:
-  author: vv-synth
-  version: "1.0.0"
+  author: ru-461
+  version: "0.1.0"
 ---
 
 # vv-synth (portable — any project)
@@ -74,13 +74,19 @@ Expect `200`. On failure, start Engine once; retry synthesis at most once after 
 ## Install vv-synth CLI (if command missing)
 
 ```shell
-cd /path/to/vv-synth
-uv tool install --editable .
+uv tool install git+https://github.com/ru-461/vv-synth
 uv tool update-shell   # if vv-synth is not on PATH
 vv-synth --help
 ```
 
-`~/.local/bin` must be on PATH. Reinstall after repo moves: `uv tool uninstall vv-synth` then install again.
+Alternatively, install from a local clone (editable):
+
+```shell
+cd /path/to/vv-synth
+uv tool install --editable .
+```
+
+`~/.local/bin` must be on PATH. For editable installs, reinstall after repo moves: `uv tool uninstall vv-synth` then install again.
 
 **Fallback** (no global install):
 
@@ -137,7 +143,7 @@ Confirm the file exists on disk; return the resolved path to the user. Do not `g
 
 | Symptom | Action |
 |---------|--------|
-| `command not found: vv-synth` | `uv tool install --editable /path/to/vv-synth` or `uv run --project <repo> vv-synth` |
+| `command not found: vv-synth` | `uv tool install git+https://github.com/ru-461/vv-synth`, `uv tool install --editable /path/to/vv-synth`, or `uv run --project <repo> vv-synth` |
 | `Connection refused` | Start Engine; `curl .../version` → 200 |
 | HTTP 4xx | Fix `--speaker` using `/speakers` in Engine docs |
 | Exit code 1 | Read one-line stderr; do not expect a traceback |

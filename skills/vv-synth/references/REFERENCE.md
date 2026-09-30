@@ -30,7 +30,7 @@ gh skill install ru-461/vv-synth vv-synth --scope user --agent claude-code
 gh skill install /path/to/vv-synth vv-synth --from-local --scope user --agent universal
 ```
 
-Update later: `gh skill update vv-synth`. Pin a release: `gh skill install ru-461/vv-synth vv-synth@v1.0.0 --scope user`.
+Update later: `gh skill update vv-synth`. Pin a release: `gh skill install ru-461/vv-synth vv-synth --scope user --pin v0.1.0`. Pinned skills are skipped by `gh skill update`.
 
 ### `npx skills` (requires Node.js)
 
@@ -47,12 +47,12 @@ From the vv-synth repository root:
 
 ```shell
 gh skill publish --dry-run    # validate only
-gh skill publish --tag v1.0.0   # release (adds agent-skills topic)
+gh skill publish --tag v0.1.0   # release (adds agent-skills topic)
 ```
 
 Discovery path: `skills/vv-synth/SKILL.md` ([Agent Skills specification](https://agentskills.io/specification)).
 
-After CLI, Engine setup, or terms guidance changes, bump `metadata.version` in `SKILL.md`, publish a new tag, and tell users to run `gh skill update vv-synth`.
+After CLI, Engine setup, or terms guidance changes, bump `version` in `pyproject.toml` and `metadata.version` in both skills' `SKILL.md` files to the same value, publish with the matching `v<version>` tag, and tell users to run `gh skill update vv-synth`.
 
 ## Engine preparation and terms
 

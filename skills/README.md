@@ -33,14 +33,15 @@ From a local clone:
 
 ```shell
 gh skill install /path/to/vv-synth vv-synth --from-local --scope user --agent universal
-gh skill preview /path/to/vv-synth vv-synth --from-local
 ```
+
+Preview the published skill: `gh skill preview ru-461/vv-synth vv-synth`.
 
 Update or pin:
 
 ```shell
 gh skill update vv-synth
-gh skill install ru-461/vv-synth vv-synth@v1.0.0 --scope user --pin v1.0.0
+gh skill install ru-461/vv-synth vv-synth --scope user --pin v0.1.0
 ```
 
 ### Alternative: `npx skills`
@@ -78,10 +79,10 @@ npx skills@latest add ru-461/vv-synth --skill vv-synth --agent cursor
 ```shell
 cd /path/to/vv-synth
 gh skill publish --dry-run
-gh skill publish --tag v1.0.0
+gh skill publish --tag v0.1.0
 ```
 
-This creates a GitHub Release with the `agent-skills` topic. When skill content changes, bump the tag and tell users to run `gh skill update`.
+This creates a GitHub Release with the `agent-skills` topic, using the same `v<version>` tag as the CLI (`version` in `pyproject.toml`). For a new release, bump `version` in `pyproject.toml` and `metadata.version` in both skills' `SKILL.md` files to the same value, publish with the matching tag, and tell users to run `gh skill update`.
 
 ## Directory Layout
 
@@ -111,6 +112,6 @@ skills/
 ## Prerequisites for CLI Users
 
 1. Start VOICEVOX Engine (CPU / GPU) with Docker or an official binary. See `skills/vv-synth/SKILL.md`.
-2. Add `vv-synth` to PATH with `uv tool install --editable .`. See README.
+2. Add `vv-synth` to PATH with `uv tool install git+https://github.com/ru-461/vv-synth`, or `uv tool install --editable .` from an existing local clone. See README.
 
 This skill does not include VOICEVOX Engine, voice libraries, models, official binaries, or generated WAV files. When using or distributing generated audio, follow the latest VOICEVOX terms, speaker-specific terms, and credit requirements.

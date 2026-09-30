@@ -9,8 +9,8 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.14+, uv, the vv-synth repo checkout, and a reachable VOICEVOX Engine on port 50021. Engine may be Docker CPU/GPU or an official binary.
 metadata:
-  author: vv-synth
-  version: "1.0.0"
+  author: ru-461
+  version: "0.1.0"
 ---
 
 # vv-synth-dev (repository development)
@@ -128,7 +128,7 @@ When Engine setup, terms guidance, or CLI options change, update together:
 2. This file (`skills/vv-synth-dev/SKILL.md`)
 3. `README.md` / `README.ja.md` / `AGENTS.md` / `CLAUDE.md` as needed
 
-Publish: `gh skill publish --tag vX.Y.Z` from repo root.
+Publish: `gh skill publish --tag vX.Y.Z` from repo root. `X.Y.Z` is the `version` in `pyproject.toml`, which must match `metadata.version` in both skills' `SKILL.md` files.
 
 ## Related docs
 
