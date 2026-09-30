@@ -4,6 +4,10 @@ Thanks for your interest in `vv-synth`. It is a thin Typer CLI that sends text t
 separately prepared VOICEVOX Engine over HTTP and writes a local WAV file. Please keep
 changes small and focused.
 
+## Code of Conduct
+
+This project follows the [Contributor Covenant Code of Conduct](.github/CODE_OF_CONDUCT.md). By participating, you are expected to uphold it.
+
 ## Scope and philosophy
 
 - `vv-synth` only talks to the Engine HTTP API (`http://127.0.0.1:50021` by default).

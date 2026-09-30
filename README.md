@@ -336,7 +336,7 @@ vv-synth/
 ├── docs/                # Japanese project overview (OVERVIEW.ja.md)
 ├── skills/              # Agent Skills (vv-synth, vv-synth-dev)
 ├── .claude/rules/       # Agent rules referenced by AGENTS.md
-├── .github/             # CI workflow, Dependabot, and issue / PR templates
+├── .github/             # CI workflow, Dependabot, issue / PR templates, and Code of Conduct
 ├── pyproject.toml       # vv-synth package and [project.scripts]
 ├── AGENTS.md            # Shared agent guidance
 ├── CLAUDE.md            # Claude Code summary

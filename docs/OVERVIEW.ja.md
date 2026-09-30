@@ -172,5 +172,6 @@ uv run pytest
 - [`README.md`](../README.md) / [`README.ja.md`](../README.ja.md) — 利用者向け説明
 - [`AGENTS.md`](../AGENTS.md) / [`CLAUDE.md`](../CLAUDE.md) — エージェント／開発者向けガイド
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md) — 貢献方法
+- [`.github/CODE_OF_CONDUCT.md`](../.github/CODE_OF_CONDUCT.md) — 行動規範
 - [`SECURITY.md`](../SECURITY.md) — セキュリティ方針
 - [`.claude/rules/`](../.claude/rules/) — 詳細ルール集
