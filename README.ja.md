@@ -4,7 +4,7 @@
 
 `vv-synth` は、[VOICEVOX](https://voicevox.hiroshiba.jp/) Engine にテキストを送信し、合成された音声をローカルの WAV ファイルに保存する軽量な CLI ツールです。
 
-このプロジェクトは意図的にシンプルな構成を保っています：
+このプロジェクトは意図的にシンプルな構成を保っています。
 
 - `vv-synth` は、別途用意した VOICEVOX Engine と HTTP 経由で通信します。
 - VOICEVOX Engine、音声ライブラリ、モデルファイル、Docker イメージ、公式バイナリ、および生成された WAV ファイルは、本リポジトリには同梱されていません。
@@ -39,14 +39,14 @@ Python、uv、および接続可能な VOICEVOX Engine があれば、Windows �
 
 生成された音声の利用を他者に許諾する際は、公式 VOICEVOX ソフトウェア利用規約の許諾内容 2・3 に従い、その相手にも各音声ライブラリの規約を遵守させ、さらに別の相手へ音声の利用を許諾する場合にも同じ義務を引き継がせる必要があります。
 
-参考リンク:
+参考リンク
 
 - [VOICEVOX 公式 ソフトウェア利用規約](https://voicevox.hiroshiba.jp/term/)
 - [Docker Hub の voicevox/voicevox_engine](https://hub.docker.com/r/voicevox/voicevox_engine)
 - [VOICEVOX Engine リリース一覧](https://github.com/VOICEVOX/voicevox_engine/releases)
 - [VOICEVOX Q&A](https://voicevox.hiroshiba.jp/qa/)
 
-変更およびリリース時のメンテナ用チェックリスト:
+変更およびリリース時のメンテナ用チェックリスト
 
 - `LICENSE`（MIT）のコードライセンスが `pyproject.toml` のライセンスメタデータと一致していることを確認する。
 - `pyproject.toml` の `version`、両方の `skills/*/SKILL.md` 内の `metadata.version`、およびリリース用のタグ `v<version>`（`gh skill publish --tag` で作成）が一致していることを確認する。
@@ -64,19 +64,19 @@ Docker を利用する場合は公式イメージを使用してください。D
 
 ### Docker CPU
 
-イメージをプルします:
+イメージをプルします。
 
 ```shell
 docker pull voicevox/voicevox_engine:cpu-latest
 ```
 
-フォアグラウンドで実行する場合:
+フォアグラウンドで実行する場合
 
 ```shell
 docker run --rm -it -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest
 ```
 
-バックグラウンドで実行する場合:
+バックグラウンドで実行する場合
 
 ```shell
 docker run --rm -d -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest
@@ -86,27 +86,27 @@ docker run --rm -d -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-lates
 
 ### Windows + NVIDIA GPU (Docker Desktop)
 
-Docker を使って Windows 上で GPU を使用するには以下が必要です:
+Docker を使って Windows 上で GPU を使用するには以下が必要です。
 
 - NVIDIA GPU を搭載した Windows 10 / 11
 - WSL2 バックエンドが有効化された Docker Desktop
 - WSL2 での GPU 利用をサポートする最新の NVIDIA ドライバー
 - 最新の WSL2 Linux カーネル（PowerShell で `wsl --update` を実行）
 
-Docker が GPU を認識できるか確認します:
+Docker が GPU を認識できるか確認します。
 
 ```shell
 docker run --rm -it --gpus=all nvcr.io/nvidia/k8s/cuda-sample:nbody nbody -gpu -benchmark
 ```
 
-NVIDIA GPU 版 Engine イメージを実行します:
+NVIDIA GPU 版 Engine イメージを実行します。
 
 ```shell
 docker pull voicevox/voicevox_engine:nvidia-latest
 docker run --rm -it --gpus all -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:nvidia-latest
 ```
 
-バックグラウンド実行:
+バックグラウンド実行
 
 ```shell
 docker run --rm -d --gpus all -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:nvidia-latest
@@ -122,7 +122,7 @@ Docker を使用しない場合は、[VOICEVOX Engine リリース一覧](https:
 
 ### Engine の動作確認
 
-別のターミナルで以下を実行します:
+別のターミナルで以下を実行します。
 
 ```shell
 curl -sSf http://127.0.0.1:50021/version
@@ -151,7 +151,7 @@ uv sync
 uv run vv-synth --help
 ```
 
-Docker または公式バイナリで VOICEVOX Engine を起動したのち、以下を実行します:
+Docker または公式バイナリで VOICEVOX Engine を起動したのち、以下を実行します。
 
 ```shell
 uv run vv-synth "こんにちは、音声合成のテストです。"
@@ -161,24 +161,24 @@ uv run vv-synth "こんにちは、音声合成のテストです。"
 
 ## グローバルインストール
 
-GitHub から直接インストール（リポジトリのクローンは不要）:
+GitHub から直接インストール（リポジトリのクローンは不要）
 
 ```shell
 uv tool install git+https://github.com/ru-461/vv-synth
 ```
 
-ローカルのクローンからインストール（編集可能モード）:
+ローカルのクローンからインストール（編集可能モード）
 
 ```shell
 uv tool install --editable .
 ```
 
-以下 2 つのコマンドがインストールされ、まったく同様に動作します:
+以下 2 つのコマンドがインストールされ、まったく同様に動作します。
 
 - `vv-synth` — 正式名称
 - `vvs` — 短縮エイリアス
 
-`~/.local/bin` が `PATH` に通っていない場合:
+`~/.local/bin` が `PATH` に通っていない場合
 
 ```shell
 uv tool update-shell
@@ -186,13 +186,13 @@ uv tool update-shell
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-アンインストール:
+アンインストール
 
 ```shell
 uv tool uninstall vv-synth
 ```
 
-編集可能モードでインストールした後にリポジトリのパスを変更した場合は、再インストールを行ってください:
+編集可能モードでインストールした後にリポジトリのパスを変更した場合は、再インストールを行ってください。
 
 ```shell
 uv tool uninstall vv-synth
@@ -206,21 +206,21 @@ uv tool install --editable .
 
 ### 推奨: `gh skill`
 
-GitHub CLI v2.90+ が必要です:
+GitHub CLI v2.90+ が必要です。
 
 ```shell
 cd /path/to/vv-synth
 gh skill install . vv-synth --from-local --scope user --agent universal
 ```
 
-特定のエージェントのみにスキルをインストールしたい場合は、対象を指定してください:
+特定のエージェントのみにスキルをインストールしたい場合は、対象を指定してください。
 
 ```shell
 gh skill install . vv-synth --from-local --scope user --agent codex
 gh skill install . vv-synth --from-local --scope user --agent claude-code
 ```
 
-インストール前に公開スキルの内容を確認できます（GitHub から読み込みます。ローカルクローンの場合は `skills/vv-synth/SKILL.md` を直接確認してください）:
+インストール前に公開スキルの内容を確認できます（GitHub から読み込みます。ローカルクローンの場合は `skills/vv-synth/SKILL.md` を直接確認してください）。
 
 ```shell
 gh skill preview ru-461/vv-synth vv-synth
@@ -228,14 +228,14 @@ gh skill preview ru-461/vv-synth vv-synth
 
 ### 代替方法: `npx skills`
 
-Node.js が必要ですが、グローバルインストールは不要です。`--global` はユーザーディレクトリを対象とします（現在のプロジェクト内のみに限定する場合は付与しないでください）:
+Node.js が必要ですが、グローバルインストールは不要です。`--global` はユーザーディレクトリを対象とします（現在のプロジェクト内のみに限定する場合は付与しないでください）。
 
 ```shell
 cd /path/to/vv-synth
 npx skills@latest add . --skill vv-synth --global
 ```
 
-特定のエージェントを指定するか、インストール前にリポジトリのスキル一覧を表示します:
+特定のエージェントを指定するか、インストール前にリポジトリのスキル一覧を表示します。
 
 ```shell
 npx skills@latest add . --skill vv-synth --global --agent claude-code
@@ -263,7 +263,7 @@ vv-synth MESSAGE [OPTIONS]
 | `--speed` | - | `1.0` | 話速は有限の数値 `0.01`〜`10.0`（`1.0` が標準。値が大きいほど速くなる） |
 | `--engine-url` | - | `http://127.0.0.1:50021` | Engine の URL。`VOICEVOX_ENGINE_URL` でも設定可能 |
 
-実行例:
+実行例
 
 ```shell
 vv-synth "テストです" -o hello.wav
@@ -384,7 +384,7 @@ vv-synth/
 uv sync --group dev
 ```
 
-Docker または公式バイナリで VOICEVOX Engine を起動し、以下で確認します:
+Docker または公式バイナリで VOICEVOX Engine を起動し、以下で確認します。
 
 ```shell
 curl -sSf http://127.0.0.1:50021/version
@@ -404,7 +404,7 @@ curl -sSf http://127.0.0.1:50021/version
 
 ### Mermaid 図の更新
 
-アーキテクチャ図の正本は [`README.md`（英語版）](README.md#architecture) にあります。以下のような場合は更新を行ってください:
+アーキテクチャ図の正本は [`README.md`（英語版）](README.md#architecture) にあります。以下のような場合は更新を行ってください。
 
 - モジュールの追加、名称変更、あるいは役割の変更があった場合
 - Engine API のエンドポイントや呼び出し順序が変更された場合
@@ -423,14 +423,14 @@ uv run pytest
 
 `pytest` は `tests/` 内の単体テストスイートを実行します。テスト内では `urllib` 経由の Engine 通信がモック化されているため、VOICEVOX Engine を起動しておく必要はありません。
 
-Engine を稼働させた状態での手動スモークテスト:
+Engine を稼働させた状態での手動スモークテスト
 
 ```shell
 uv run vv-synth "maintenance smoke test"
 ls -la output/
 ```
 
-パッケージのエントリーポイントを変更した場合:
+パッケージのエントリーポイントを変更した場合
 
 ```shell
 uv tool install --editable .
