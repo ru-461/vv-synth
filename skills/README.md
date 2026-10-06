@@ -112,6 +112,6 @@ skills/
 ## Prerequisites for CLI Users
 
 1. Start VOICEVOX Engine (CPU / GPU) with Docker or an official binary. See `skills/vv-synth/SKILL.md`.
-2. Install the CLI from PyPI with `uv tool install vv-synth` (or run it without installing via `uvx vv-synth`). From a local clone, `uv tool install --editable .` also works. See README.
+2. Install the CLI from PyPI with `uv tool install vv-synth` (or run it without installing via `uvx vv-synth`), or with Homebrew via `brew install ru-461/tap/vv-synth`. From a local clone, `uv tool install --editable .` also works. See README.
 
 This skill does not include VOICEVOX Engine, voice libraries, models, official binaries, or generated WAV files. When using or distributing generated audio, follow the latest VOICEVOX terms, speaker-specific terms, and credit requirements.

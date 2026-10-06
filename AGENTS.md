@@ -42,9 +42,10 @@ uv run ruff check . && uv run ruff format . && uv run ty check && uv run pytest
 uv run vv-synth "Test"   # Engine must be running on :50021
 ```
 
-Global CLI: `uv tool install --editable .` (users install from PyPI: `uv tool install vv-synth`).
+Global CLI: `uv tool install --editable .` (users install from PyPI: `uv tool install vv-synth`,
+or from the Homebrew tap: `brew install ru-461/tap/vv-synth`).
 Engine setup (Docker / Windows GPU / binary) is in
-[README.md](README.md#prepare-voicevox-engine). Releases (GitHub Release + PyPI) follow
+[README.md](README.md#prepare-voicevox-engine). Releases (GitHub Release + PyPI + Homebrew tap) follow
 [README.md](README.md#release); publish only when the user explicitly asks.
 
 ## Skills

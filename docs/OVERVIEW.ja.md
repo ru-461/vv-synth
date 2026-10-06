@@ -20,7 +20,8 @@ WAV 音声に変換する、薄い（thin）Typer 製コマンドラインツー
   VOICEVOX Engine（既定で `http://127.0.0.1:50021`）側で行われ、本ツールはその
   HTTP API を呼び出す**薄いクライアント**に徹します。
 - **配布**: [PyPI](https://pypi.org/project/vv-synth/) で公開しています（`uv tool install vv-synth`）。
-- **同梱しないもの**（リポジトリ・PyPI パッケージ共通）: VOICEVOX Engine 本体、
+  Homebrew の tap [`ru-461/tap`](https://github.com/ru-461/homebrew-tap) からもインストールできます（`brew install ru-461/tap/vv-synth`）。
+- **同梱しないもの**（リポジトリ・PyPI パッケージ・Homebrew formula 共通）: VOICEVOX Engine 本体、
   音声ライブラリ、モデル、Docker イメージ、公式バイナリ、生成済み音声（WAV）。
   これらはすべて外部に置く方針です（[`.claude/rules/terms.md`](../.claude/rules/terms.md)）。
 

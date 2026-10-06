@@ -81,6 +81,8 @@ uv tool update-shell   # if vv-synth is not on PATH
 vv-synth --help
 ```
 
+With Homebrew (macOS / Linux), `brew install ru-461/tap/vv-synth` installs the same commands without uv.
+
 `~/.local/bin` must be on PATH. Upgrade later with `uv tool upgrade vv-synth`.
 
 **No install:** run the PyPI package in a temporary environment (same arguments as `vv-synth`):

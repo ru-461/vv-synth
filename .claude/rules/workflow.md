@@ -58,10 +58,12 @@ ls -la output/
 uv tool install --editable .   # installs both `vv-synth` and the alias `vvs`
 ```
 
-Users install the published package with `uv tool install vv-synth` (PyPI).
+Users install the published package with `uv tool install vv-synth` (PyPI) or
+`brew install ru-461/tap/vv-synth` (Homebrew tap `ru-461/homebrew-tap`).
 
 ## Release
 
-Version bump, GitHub Release, and PyPI upload follow
-[README.md](../../README.md#release). `gh skill publish` and `uv publish` are outward-facing,
-and PyPI never accepts a version twice: run them only when the user explicitly asks.
+Version bump, GitHub Release, PyPI upload, and the Homebrew formula update follow
+[README.md](../../README.md#release). `gh skill publish`, `uv publish`, and
+`brew bump-formula-pr` are outward-facing, and PyPI never accepts a version twice: run them only
+when the user explicitly asks.
