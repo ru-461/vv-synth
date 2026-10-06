@@ -30,7 +30,7 @@ gh skill install ru-461/vv-synth vv-synth --scope user --agent claude-code
 gh skill install /path/to/vv-synth vv-synth --from-local --scope user --agent universal
 ```
 
-Update later: `gh skill update vv-synth`. Pin a release: `gh skill install ru-461/vv-synth vv-synth --scope user --pin v0.1.0`. Pinned skills are skipped by `gh skill update`.
+Update later: `gh skill update vv-synth`. Pin a release: `gh skill install ru-461/vv-synth vv-synth --scope user --pin v0.1.1`. Pinned skills are skipped by `gh skill update`.
 
 ### `npx skills` (requires Node.js)
 
@@ -47,7 +47,7 @@ From the vv-synth repository root:
 
 ```shell
 gh skill publish --dry-run    # validate only
-gh skill publish --tag v0.1.0   # release (adds agent-skills topic)
+gh skill publish --tag v0.1.1   # release (adds agent-skills topic)
 ```
 
 Discovery path: `skills/vv-synth/SKILL.md` ([Agent Skills specification](https://agentskills.io/specification)).

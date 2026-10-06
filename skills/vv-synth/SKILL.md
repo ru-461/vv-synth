@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires Python 3.14+, uv, and a reachable VOICEVOX Engine on port 50021. Engine may be Docker CPU/GPU or an official binary. Windows Docker GPU requires Docker Desktop WSL2 backend with NVIDIA GPU.
 metadata:
   author: ru-461
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # vv-synth (portable — any project)

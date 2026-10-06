@@ -41,7 +41,7 @@ Update or pin:
 
 ```shell
 gh skill update vv-synth
-gh skill install ru-461/vv-synth vv-synth --scope user --pin v0.1.0
+gh skill install ru-461/vv-synth vv-synth --scope user --pin v0.1.1
 ```
 
 ### Alternative: `npx skills`
@@ -79,7 +79,7 @@ npx skills@latest add ru-461/vv-synth --skill vv-synth --agent cursor
 ```shell
 cd /path/to/vv-synth
 gh skill publish --dry-run
-gh skill publish --tag v0.1.0
+gh skill publish --tag v0.1.1
 ```
 
 This creates a GitHub Release with the `agent-skills` topic, using the same `v<version>` tag as the CLI (`version` in `pyproject.toml`). For a new release, bump `version` in `pyproject.toml` and `metadata.version` in both skills' `SKILL.md` files to the same value, publish with the matching tag, and tell users to run `gh skill update`. The same version is also uploaded to PyPI; the full steps are in [README.md](../README.md#release).
