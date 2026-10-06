@@ -496,9 +496,10 @@ vv-synth --help
 
 4. `gh skill publish --tag v<version>` で GitHub Release とタグを作成します。これによりエージェントスキルも公開されます。
 5. `uv publish` で PyPI にアップロードします。`dist/*` がアップロードされ、`UV_PUBLISH_TOKEN` に設定した API トークンなどの PyPI 認証情報が必要です。
-6. PyPI へのアップロードから 1 日以上経ってから、Homebrew の formula を更新します（Homebrew は公開から 1 日未満の PyPI リリースを使いません）。このコマンドで、新しいバージョンと更新済みの Python 依存を含むプルリクエストが [`ru-461/homebrew-tap`](https://github.com/ru-461/homebrew-tap) に作成されます。tap の CI が通ったらマージします。
+6. PyPI へのアップロードから 1 日以上経ってから、Homebrew の formula を更新します（Homebrew は公開から 1 日未満の PyPI リリースを使いません）。`bump-formula-pr` はローカルに tap 済みの Git リポジトリでしか動かないため、先に tap します。2 つ目のコマンドで、新しいバージョンと更新済みの Python 依存を含むプルリクエストが [`ru-461/homebrew-tap`](https://github.com/ru-461/homebrew-tap) に作成されます。tap の CI が通ったらマージします。
 
    ```shell
+   brew tap ru-461/tap   # マシンごとに初回のみ
    brew bump-formula-pr --no-fork --version <version> ru-461/tap/vv-synth
    ```
 

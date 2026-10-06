@@ -495,9 +495,10 @@ Each release publishes one version to PyPI, as the GitHub Release tag `v<version
 
 4. Create the GitHub Release and tag, which also publishes the Agent Skills: `gh skill publish --tag v<version>`.
 5. Upload to PyPI with `uv publish`. It uploads `dist/*` and needs PyPI credentials, such as an API token in `UV_PUBLISH_TOKEN`.
-6. A day after the PyPI upload, update the Homebrew formula (Homebrew skips PyPI releases younger than one day). The command opens a pull request on [`ru-461/homebrew-tap`](https://github.com/ru-461/homebrew-tap) with the new version and refreshed Python resources; merge it after the tap's CI passes.
+6. A day after the PyPI upload, update the Homebrew formula (Homebrew skips PyPI releases younger than one day). `bump-formula-pr` only works on a locally tapped Git repository, so tap it first. The second command opens a pull request on [`ru-461/homebrew-tap`](https://github.com/ru-461/homebrew-tap) with the new version and refreshed Python resources; merge it after the tap's CI passes.
 
    ```shell
+   brew tap ru-461/tap   # once per machine
    brew bump-formula-pr --no-fork --version <version> ru-461/tap/vv-synth
    ```
 
