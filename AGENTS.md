@@ -1,8 +1,9 @@
 # vv-synth — Agent Guide
 
 `vv-synth` is a thin Typer CLI for VOICEVOX Engine: it sends text to a separately prepared
-Engine over HTTP (default `http://127.0.0.1:50021`) and writes a WAV file. Package: `vv-synth`;
-library: `vv_synth/`; entry point: `main:main`. Keep changes small and the CLI thin.
+Engine over HTTP (default `http://127.0.0.1:50021`) and writes a WAV file. Package: `vv-synth`
+(published on [PyPI](https://pypi.org/project/vv-synth/)); library: `vv_synth/`; entry point:
+`main:main`. Keep changes small and the CLI thin.
 
 This repository is open source (MIT). Do **not** vendor VOICEVOX Engine, voice libraries,
 model files, binaries, Docker images, or generated WAV files (see
@@ -41,8 +42,10 @@ uv run ruff check . && uv run ruff format . && uv run ty check && uv run pytest
 uv run vv-synth "Test"   # Engine must be running on :50021
 ```
 
-Global CLI: `uv tool install --editable .`. Engine setup (Docker / Windows GPU / binary) is in
-[README.md](README.md#prepare-voicevox-engine).
+Global CLI: `uv tool install --editable .` (users install from PyPI: `uv tool install vv-synth`).
+Engine setup (Docker / Windows GPU / binary) is in
+[README.md](README.md#prepare-voicevox-engine). Releases (GitHub Release + PyPI) follow
+[README.md](README.md#release); publish only when the user explicitly asks.
 
 ## Skills
 

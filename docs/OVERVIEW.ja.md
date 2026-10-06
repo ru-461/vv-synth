@@ -19,9 +19,10 @@ WAV 音声に変換する、薄い（thin）Typer 製コマンドラインツー
 - **位置づけ**: 音声合成そのものは行いません。合成処理はあくまで利用者が起動した
   VOICEVOX Engine（既定で `http://127.0.0.1:50021`）側で行われ、本ツールはその
   HTTP API を呼び出す**薄いクライアント**に徹します。
-- **同梱しないもの**: VOICEVOX Engine 本体、音声ライブラリ、モデル、Docker イメージ、
-  公式バイナリ、生成済み音声（WAV）。これらはすべて外部に置く方針です
-  （[`.claude/rules/terms.md`](../.claude/rules/terms.md)）。
+- **配布**: [PyPI](https://pypi.org/project/vv-synth/) で公開しています（`uv tool install vv-synth`）。
+- **同梱しないもの**（リポジトリ・PyPI パッケージ共通）: VOICEVOX Engine 本体、
+  音声ライブラリ、モデル、Docker イメージ、公式バイナリ、生成済み音声（WAV）。
+  これらはすべて外部に置く方針です（[`.claude/rules/terms.md`](../.claude/rules/terms.md)）。
 
 ## 2. 主な機能
 
@@ -131,17 +132,18 @@ WAV は既定でコマンド実行ディレクトリの `output/` に保存さ�
 - 起動中の VOICEVOX Engine（Docker または公式バイナリ）
 
 ```shell
-# 取得と依存解決
-git clone https://github.com/ru-461/vv-synth.git
-cd vv-synth
-uv sync
+# PyPI からインストール
+uv tool install vv-synth
 
 # VOICEVOX Engine を起動（Docker が最も簡単）
 docker run --rm -it -p '127.0.0.1:50021:50021' voicevox/voicevox_engine:cpu-latest
 
 # 別ターミナルで合成
-uv run vv-synth "こんにちは、音声合成のテストです。"
+vv-synth "こんにちは、音声合成のテストです。"
 ```
+
+インストールせずに試す場合は `uvx vv-synth "..."` を使います。開発時はリポジトリをクローンして
+`uv sync` し、`uv run vv-synth` で実行します（[8. 開発フロー](#8-開発フロー)）。
 
 ## 8. 開発フロー
 
@@ -157,6 +159,8 @@ uv run pytest
 - Lint: ruff（`select = ["ALL"]`、strict）、型チェック: ty（strict）
 - 絶対インポートのみ（相対インポート禁止）
 - コミット: 英語ワンライン `prefix: message`（`feat` / `fix` / `docs` など）。コミットは依頼時のみ。
+- リリース: 同じバージョンを PyPI と GitHub Release（タグ `v<version>`）に公開します。手順は
+  [README の Release](../README.md#release) を参照。公開は依頼時のみ。
 
 ## 9. ライセンスと VOICEVOX 利用規約
 

@@ -10,6 +10,9 @@ paths:
 `README.md` is the source of truth for the two architecture diagrams and
 maintenance procedures. `README.ja.md` is the Japanese mirror for user-facing content.
 
+`README.md` is also the PyPI project description. Link repository files from it with absolute
+GitHub URLs (`https://github.com/ru-461/vv-synth/blob/main/...`); relative links break on PyPI.
+
 ## Sync targets
 
 When behavior or structure changes, keep these aligned:

@@ -1,5 +1,7 @@
 # vv-synth
 
+[![PyPI](https://img.shields.io/pypi/v/vv-synth)](https://pypi.org/project/vv-synth/) [![Python](https://img.shields.io/pypi/pyversions/vv-synth)](https://pypi.org/project/vv-synth/)
+
 [English Version](README.md)
 
 `vv-synth` は、[VOICEVOX](https://voicevox.hiroshiba.jp/) Engine にテキストを送信し、合成された音声をローカルの WAV ファイルに保存する軽量な CLI ツールです。
@@ -7,14 +9,14 @@
 このプロジェクトは意図的にシンプルな構成を保っています。
 
 - `vv-synth` は、別途用意した VOICEVOX Engine と HTTP 経由で通信します。
-- VOICEVOX Engine、音声ライブラリ、モデルファイル、Docker イメージ、公式バイナリ、および生成された WAV ファイルは、本リポジトリには同梱されていません。
+- VOICEVOX Engine、音声ライブラリ、モデルファイル、Docker イメージ、公式バイナリ、および生成された WAV ファイルは、本リポジトリにも PyPI パッケージにも同梱されていません。
 - 実行時の処理は、主に [`vv_synth/engine_client.py`](vv_synth/engine_client.py)、[`vv_synth/output_paths.py`](vv_synth/output_paths.py)、および [`main.py`](main.py) に集約されています。
 
 ## ドキュメント
 
-- **ユーザー向け:** [クイックスタート](#クイックスタート) / [使い方](#使い方)
+- **ユーザー向け:** [クイックスタート](#クイックスタート) / [インストール](#インストール) / [使い方](#使い方)
 - **VOICEVOX 利用規約:** [OSS 公開と VOICEVOX の利用規約](#oss-公開と-voicevox-の利用規約)
-- **メンテナ向け:** [アーキテクチャ](#アーキテクチャ) / [メンテナンス](#メンテナンス)
+- **メンテナ向け:** [アーキテクチャ](#アーキテクチャ) / [メンテナンス](#メンテナンス) / [リリース](#リリース)
 - **AI コーディングエージェント（Codex CLI / Claude Code 推奨）:** [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) / [`.claude/rules/`](.claude/rules/) / [`skills/README.md`](skills/README.md)
 - **エージェントスキル:** ポータブルな TTS 用の [`skills/vv-synth/`](skills/vv-synth/)、本リポジトリ開発用の [`skills/vv-synth-dev/`](skills/vv-synth-dev/)
 
@@ -33,7 +35,7 @@ Python、uv、および接続可能な VOICEVOX Engine があれば、Windows �
 
 ## OSS 公開と VOICEVOX の利用規約
 
-`vv-synth` は MIT ライセンスのもとで公開されているオープンソースソフトウェアであり、軽量な HTTP クライアント CLI のみを含んでいます。VOICEVOX Engine 本体、音声ライブラリ、モデルファイル、Docker イメージ、Windows/macOS/Linux 用の公式バイナリ、および生成された WAV ファイルは同梱していません。
+`vv-synth` は MIT ライセンスのもとで公開されているオープンソースソフトウェアです。本リポジトリと [PyPI パッケージ](https://pypi.org/project/vv-synth/) には、軽量な HTTP クライアント CLI のみが含まれています。VOICEVOX Engine 本体、音声ライブラリ、モデルファイル、Docker イメージ、Windows/macOS/Linux 用の公式バイナリ、および生成された WAV ファイルは同梱していません。
 
 ユーザーは、公式の最新 VOICEVOX 利用規約を確認し、遵守する責任を負います。生成された音声を使用する際は、VOICEVOX を利用したことがわかるクレジット表記と、各音声ライブラリ / 話者固有の利用規約の遵守が必要です。ただし、適用されるライセンスが必要なクレジット表記の省略を明示的に許諾している場合は、その許諾に従います。生成された音声をアプリケーションに組み込んだり再配布したりする場合は、最終的な配布物もそれらの利用規約やクレジット要件を満たしている必要があります。
 
@@ -49,9 +51,9 @@ Python、uv、および接続可能な VOICEVOX Engine があれば、Windows �
 変更およびリリース時のメンテナ用チェックリスト
 
 - `LICENSE`（MIT）のコードライセンスが `pyproject.toml` のライセンスメタデータと一致していることを確認する。
-- `pyproject.toml` の `version`、両方の `skills/*/SKILL.md` 内の `metadata.version`、およびリリース用のタグ `v<version>`（`gh skill publish --tag` で作成）が一致していることを確認する。
+- `pyproject.toml` の `version`、両方の `skills/*/SKILL.md` 内の `metadata.version`、リリース用のタグ `v<version>`（`gh skill publish --tag` で作成）、および PyPI 上のバージョンが一致していることを確認する。
 - 本 README 内の VOICEVOX 公式リンクが最新であることを確認する。
-- VOICEVOX Engine、音声ライブラリ、モデルファイル、および生成された WAV ファイルが Git の追跡対象になっていないことを確認する。
+- VOICEVOX Engine、音声ライブラリ、モデルファイル、および生成された WAV ファイルが、Git の追跡対象にも PyPI の sdist / wheel にも含まれていないことを確認する。
 - サンプル音声を配布する場合は、事前に話者固有の規約とクレジット表記を確認する。
 
 ## VOICEVOX Engine の準備
@@ -144,39 +146,46 @@ JSON が返ってくれば Engine の準備は完了です。話者のスタイ�
 
 ## クイックスタート
 
+[PyPI](https://pypi.org/project/vv-synth/) からインストールします。
+
 ```shell
-git clone https://github.com/ru-461/vv-synth.git
-cd vv-synth
-uv sync
-uv run vv-synth --help
+uv tool install vv-synth
+vv-synth --help
 ```
 
 Docker または公式バイナリで VOICEVOX Engine を起動したのち、以下を実行します。
 
 ```shell
-uv run vv-synth "こんにちは、音声合成のテストです。"
+vv-synth "こんにちは、音声合成のテストです。"
 ```
 
 デフォルトの出力先は、コマンドを実行したディレクトリ配下の `output/YYYYMMDD-HHMMSS.wav`（ローカル時間）です。`output/` ディレクトリは初回実行時に自動生成されます。グローバルでデフォルトのディレクトリを変更したい場合は `VV_SYNTH_OUTPUT_DIR` を設定してください。
 
-## グローバルインストール
+## インストール
 
-GitHub から直接インストール（リポジトリのクローンは不要）
-
-```shell
-uv tool install git+https://github.com/ru-461/vv-synth
-```
-
-ローカルのクローンからインストール（編集可能モード）
+### PyPI からインストール（推奨）
 
 ```shell
-uv tool install --editable .
+uv tool install vv-synth
 ```
 
 以下 2 つのコマンドがインストールされ、まったく同様に動作します。
 
 - `vv-synth` — 正式名称
 - `vvs` — 短縮エイリアス
+
+アップグレードとアンインストール
+
+```shell
+uv tool upgrade vv-synth
+uv tool uninstall vv-synth
+```
+
+インストールせずに 1 回だけ実行する場合（uv が一時的な環境にパッケージを取得します）
+
+```shell
+uvx vv-synth "テストです"
+```
 
 `~/.local/bin` が `PATH` に通っていない場合
 
@@ -186,10 +195,20 @@ uv tool update-shell
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-アンインストール
+### ソースからインストール
+
+GitHub の最新の `main` をインストールする場合
 
 ```shell
-uv tool uninstall vv-synth
+uv tool install git+https://github.com/ru-461/vv-synth
+```
+
+ローカルのクローンからインストールする場合（編集可能モード）
+
+```shell
+git clone https://github.com/ru-461/vv-synth.git
+cd vv-synth
+uv tool install --editable .
 ```
 
 編集可能モードでインストールした後にリポジトリのパスを変更した場合は、再インストールを行ってください。
@@ -199,6 +218,8 @@ uv tool uninstall vv-synth
 cd /path/to/vv-synth
 uv tool install --editable .
 ```
+
+コード自体を変更する場合は [メンテナンス](#メンテナンス) を参照してください。
 
 ## エージェントスキルのローカルインストール
 
@@ -399,6 +420,7 @@ curl -sSf http://127.0.0.1:50021/version
 | Engine API/話速/エラー処理 | `vv_synth/engine_client.py` | Mermaid 図 |
 | グローバルコマンド名 | `pyproject.toml` の `[project.scripts]` | インストール手順 |
 | 依存パッケージのバージョン | `pyproject.toml` | `uv lock` / `uv.lock` |
+| リリースバージョン | `pyproject.toml` の `version` | `skills/*/SKILL.md` の `metadata.version`、`uv.lock`、[リリース](#リリース) |
 | エージェントのルール/境界 | `AGENTS.md`、`CLAUDE.md`、`.claude/rules/*.md` | アーキテクチャの表 |
 | Engine のセットアップや規約案内 | README 類、`skills/*/SKILL.md` | 公式リンク、Docker/バイナリの整合性 |
 
@@ -437,9 +459,29 @@ uv tool install --editable .
 vv-synth --help
 ```
 
+### リリース
+
+各リリースでは、同じバージョンを PyPI、GitHub Release のタグ `v<version>`、およびエージェントスキルのリリースとして公開します。PyPI では同じバージョンを二度アップロードできません。
+
+1. `pyproject.toml` の `version` と、両方の `skills/*/SKILL.md` 内の `metadata.version` を新しい値に揃え、`uv lock` を実行します（CI は `uv sync --locked` を使用します）。
+2. [品質チェック](#品質チェック) を実行してからコミットし、`main` をプッシュします。
+3. 配布物を新しくビルドし、CLI のコードのみが含まれている（VOICEVOX のアセットや WAV ファイルが含まれていない）ことを確認します。
+
+   ```shell
+   uv build --clear
+   tar -tzf dist/vv_synth-<version>.tar.gz
+   unzip -l dist/vv_synth-<version>-py3-none-any.whl
+   ```
+
+4. `gh skill publish --tag v<version>` で GitHub Release とタグを作成します。これによりエージェントスキルも公開されます。
+5. `uv publish` で PyPI にアップロードします。`dist/*` がアップロードされ、`UV_PUBLISH_TOKEN` に設定した API トークンなどの PyPI 認証情報が必要です。
+
+PyPI のプロジェクトページには、アップロードしたリリースに含まれる `README.md` が表示されます。README の変更が PyPI に反映されるのは次のリリース以降です。
+
 ### ドキュメント同期チェックリスト
 
 - [ ] `README.md` と `README.ja.md` が、ユーザーから見た同じ挙動を説明していること。
+- [ ] `README.md` からリポジトリ内ファイルへのリンクが GitHub の絶対 URL になっていること（PyPI のプロジェクト説明としても表示されるため）。
 - [ ] Mermaid 図が実装と一致していること。
 - [ ] `AGENTS.md` / `CLAUDE.md` およびエージェントスキルが最新に保たれていること。
 - [ ] CLI オプションの表が `vv-synth --help` と一致していること。
@@ -457,7 +499,7 @@ vv-synth --help
 
 | 症状 | 確認事項 |
 |---------|-------|
-| `command not found: vv-synth` | `uv tool install --editable .` を実行し、PATH（`~/.local/bin`）を確認してください |
+| `command not found: vv-synth` | `uv tool install vv-synth` を実行し、PATH（`~/.local/bin`）を確認してください |
 | `Connection refused` | Docker または公式バイナリで Engine を起動し、ポート 50021 を確認してください |
 | HTTP 4xx エラー | `--speaker` で指定しているスタイル ID を確認してください |
 | WAV ファイルが保存されない | 現在の作業ディレクトリ、`--output-dir`、および書き込み権限を確認してください |

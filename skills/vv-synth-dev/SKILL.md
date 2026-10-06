@@ -128,7 +128,7 @@ When Engine setup, terms guidance, or CLI options change, update together:
 2. This file (`skills/vv-synth-dev/SKILL.md`)
 3. `README.md` / `README.ja.md` / `AGENTS.md` / `CLAUDE.md` as needed
 
-Publish: `gh skill publish --tag vX.Y.Z` from repo root. `X.Y.Z` is the `version` in `pyproject.toml`, which must match `metadata.version` in both skills' `SKILL.md` files.
+Release only when the user explicitly asks: `gh skill publish --tag vX.Y.Z` from repo root creates the GitHub Release, and `uv build --clear` then `uv publish` upload the same version to PyPI. `X.Y.Z` is the `version` in `pyproject.toml`, which must match `metadata.version` in both skills' `SKILL.md` files. Full steps: [README.md](../../README.md#release).
 
 ## Related docs
 

@@ -1,22 +1,24 @@
 # vv-synth
 
-[日本語版](README.ja.md)
+[![PyPI](https://img.shields.io/pypi/v/vv-synth)](https://pypi.org/project/vv-synth/) [![Python](https://img.shields.io/pypi/pyversions/vv-synth)](https://pypi.org/project/vv-synth/)
+
+[日本語版](https://github.com/ru-461/vv-synth/blob/main/README.ja.md)
 
 `vv-synth` is a small CLI that sends text to [VOICEVOX](https://voicevox.hiroshiba.jp/) Engine and writes the synthesized audio as a local WAV file.
 
 The project intentionally stays thin:
 
 - `vv-synth` talks to a separately prepared VOICEVOX Engine over HTTP.
-- VOICEVOX Engine, voice libraries, model files, Docker images, official binaries, and generated WAV files are not bundled in this repository.
-- Runtime behavior is centered in [`vv_synth/engine_client.py`](vv_synth/engine_client.py), [`vv_synth/output_paths.py`](vv_synth/output_paths.py), and [`main.py`](main.py).
+- VOICEVOX Engine, voice libraries, model files, Docker images, official binaries, and generated WAV files are not bundled in this repository or the PyPI package.
+- Runtime behavior is centered in [`vv_synth/engine_client.py`](https://github.com/ru-461/vv-synth/blob/main/vv_synth/engine_client.py), [`vv_synth/output_paths.py`](https://github.com/ru-461/vv-synth/blob/main/vv_synth/output_paths.py), and [`main.py`](https://github.com/ru-461/vv-synth/blob/main/main.py).
 
 ## Documentation
 
-- **Users:** [Quick Start](#quick-start) / [Usage](#usage)
+- **Users:** [Quick Start](#quick-start) / [Install](#install) / [Usage](#usage)
 - **VOICEVOX terms:** [OSS Publication And VOICEVOX Terms](#oss-publication-and-voicevox-terms)
-- **Maintainers:** [Architecture](#architecture) / [Maintenance](#maintenance)
-- **AI coding agents (Codex CLI / Claude Code recommended):** [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) / [`.claude/rules/`](.claude/rules/) / [`skills/README.md`](skills/README.md)
-- **Agent Skills:** [`skills/vv-synth/`](skills/vv-synth/) for portable TTS, [`skills/vv-synth-dev/`](skills/vv-synth-dev/) for this repository
+- **Maintainers:** [Architecture](#architecture) / [Maintenance](#maintenance) / [Release](#release)
+- **AI coding agents (Codex CLI / Claude Code recommended):** [`AGENTS.md`](https://github.com/ru-461/vv-synth/blob/main/AGENTS.md) / [`CLAUDE.md`](https://github.com/ru-461/vv-synth/blob/main/CLAUDE.md) / [`.claude/rules/`](https://github.com/ru-461/vv-synth/tree/main/.claude/rules) / [`skills/README.md`](https://github.com/ru-461/vv-synth/blob/main/skills/README.md)
+- **Agent Skills:** [`skills/vv-synth/`](https://github.com/ru-461/vv-synth/tree/main/skills/vv-synth) for portable TTS, [`skills/vv-synth-dev/`](https://github.com/ru-461/vv-synth/tree/main/skills/vv-synth-dev) for this repository
 
 ## Requirements
 
@@ -33,7 +35,7 @@ VOICEVOX CORE (`voicevox_core/`) is not required by `vv-synth`.
 
 ## OSS Publication And VOICEVOX Terms
 
-`vv-synth` is open source under the MIT License and contains only the small HTTP client CLI. It does not vendor VOICEVOX Engine itself, voice libraries, model files, Docker images, official Windows/macOS/Linux binaries, or generated WAV files.
+`vv-synth` is open source under the MIT License. This repository and the [PyPI package](https://pypi.org/project/vv-synth/) contain only the small HTTP client CLI. It does not vendor VOICEVOX Engine itself, voice libraries, model files, Docker images, official Windows/macOS/Linux binaries, or generated WAV files.
 
 Users are responsible for checking and following the latest official VOICEVOX terms. Using generated audio requires credit identifying VOICEVOX and compliance with each voice library / speaker's own terms. The required credit may be omitted only where an applicable license explicitly permits it. If generated audio is embedded in an application or redistributed, the final distribution must also satisfy those terms and credit requirements.
 
@@ -49,9 +51,9 @@ References:
 Maintainer checklist for every change and release:
 
 - Confirm the code license in `LICENSE` (MIT) matches the `pyproject.toml` license metadata.
-- Confirm `version` in `pyproject.toml`, `metadata.version` in both `skills/*/SKILL.md` files, and the release tag `v<version>` (created by `gh skill publish --tag`) match.
+- Confirm `version` in `pyproject.toml`, `metadata.version` in both `skills/*/SKILL.md` files, the release tag `v<version>` (created by `gh skill publish --tag`), and the version on PyPI match.
 - Confirm the VOICEVOX official links in this README are current.
-- Confirm VOICEVOX Engine, voice libraries, model files, and generated WAV files are not tracked by Git.
+- Confirm VOICEVOX Engine, voice libraries, model files, and generated WAV files are neither tracked by Git nor included in the PyPI sdist / wheel.
 - If sample audio is ever distributed, confirm speaker-specific terms and credit notation first.
 
 ## Prepare VOICEVOX Engine
@@ -144,39 +146,46 @@ Do not run multiple Engines on port 50021 at the same time.
 
 ## Quick Start
 
+Install from [PyPI](https://pypi.org/project/vv-synth/):
+
 ```shell
-git clone https://github.com/ru-461/vv-synth.git
-cd vv-synth
-uv sync
-uv run vv-synth --help
+uv tool install vv-synth
+vv-synth --help
 ```
 
 After starting VOICEVOX Engine with Docker or an official binary:
 
 ```shell
-uv run vv-synth "こんにちは、音声合成のテストです。"
+vv-synth "こんにちは、音声合成のテストです。"
 ```
 
 The default output is `output/YYYYMMDD-HHMMSS.wav` (local time) under the directory where you run the command. The `output/` directory is created automatically on first run. Set `VV_SYNTH_OUTPUT_DIR` to change the default directory globally.
 
-## Global Install
+## Install
 
-Install directly from GitHub (no clone needed):
-
-```shell
-uv tool install git+https://github.com/ru-461/vv-synth
-```
-
-From a local clone (editable):
+### From PyPI (Recommended)
 
 ```shell
-uv tool install --editable .
+uv tool install vv-synth
 ```
 
 Two commands are installed and behave identically:
 
 - `vv-synth` — the canonical name
 - `vvs` — short alias
+
+Upgrade or uninstall:
+
+```shell
+uv tool upgrade vv-synth
+uv tool uninstall vv-synth
+```
+
+Run once without installing (uv fetches the package into a temporary environment):
+
+```shell
+uvx vv-synth "テストです"
+```
 
 If `~/.local/bin` is not on `PATH`:
 
@@ -186,19 +195,31 @@ uv tool update-shell
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-Uninstall:
+### From Source
+
+Install the latest `main` from GitHub:
 
 ```shell
-uv tool uninstall vv-synth
+uv tool install git+https://github.com/ru-461/vv-synth
 ```
 
-If you installed in editable mode and the repository path changed, reinstall:
+Or from a local clone (editable):
+
+```shell
+git clone https://github.com/ru-461/vv-synth.git
+cd vv-synth
+uv tool install --editable .
+```
+
+If the repository path changes after an editable install, reinstall:
 
 ```shell
 uv tool uninstall vv-synth
 cd /path/to/vv-synth
 uv tool install --editable .
 ```
+
+To work on the code itself, see [Maintenance](#maintenance).
 
 ## Agent Skill Local Install
 
@@ -242,7 +263,7 @@ npx skills@latest add . --skill vv-synth --global --agent claude-code
 npx skills@latest add . --list
 ```
 
-See [`skills/README.md`](skills/README.md) for publishing, updates, and project-scoped installs.
+See [`skills/README.md`](https://github.com/ru-461/vv-synth/blob/main/skills/README.md) for publishing, updates, and project-scoped installs.
 
 ## Usage
 
@@ -399,6 +420,7 @@ curl -sSf http://127.0.0.1:50021/version
 | Engine API/speed/errors | `vv_synth/engine_client.py` | Mermaid diagrams |
 | Global command name | `pyproject.toml` `[project.scripts]` | install instructions |
 | Dependency versions | `pyproject.toml` | `uv lock` / `uv.lock` |
+| Release version | `pyproject.toml` `version` | `skills/*/SKILL.md` `metadata.version`, `uv.lock`, [Release](#release) |
 | Agent rules/boundaries | `AGENTS.md`, `CLAUDE.md`, `.claude/rules/*.md` | Architecture tables |
 | Engine setup or VOICEVOX terms guidance | README files, `skills/*/SKILL.md` | official links and Docker/binary parity |
 
@@ -438,9 +460,29 @@ uv tool install --editable .
 vv-synth --help
 ```
 
+### Release
+
+Each release publishes one version to PyPI, as the GitHub Release tag `v<version>`, and as the Agent Skills release. PyPI never accepts the same version twice.
+
+1. Set `version` in `pyproject.toml` and `metadata.version` in both `skills/*/SKILL.md` files to the new value, then run `uv lock` (CI uses `uv sync --locked`).
+2. Run the [quality checks](#quality-checks), then commit and push `main`.
+3. Build fresh distributions and confirm they contain only the CLI code (no VOICEVOX assets or WAV files):
+
+   ```shell
+   uv build --clear
+   tar -tzf dist/vv_synth-<version>.tar.gz
+   unzip -l dist/vv_synth-<version>-py3-none-any.whl
+   ```
+
+4. Create the GitHub Release and tag, which also publishes the Agent Skills: `gh skill publish --tag v<version>`.
+5. Upload to PyPI with `uv publish`. It uploads `dist/*` and needs PyPI credentials, such as an API token in `UV_PUBLISH_TOKEN`.
+
+PyPI shows the `README.md` from the uploaded release, so README changes reach the PyPI page only with the next release.
+
 ### Documentation Sync Checklist
 
 - [ ] `README.md` and `README.ja.md` describe the same user-facing behavior.
+- [ ] Links from `README.md` to repository files are absolute GitHub URLs, because it is also the PyPI project description.
 - [ ] Mermaid diagrams match the implementation.
 - [ ] `AGENTS.md` / `CLAUDE.md` and Agent Skills are current.
 - [ ] CLI option tables match `vv-synth --help`.
@@ -458,7 +500,7 @@ vv-synth --help
 
 | Symptom | Check |
 |---------|-------|
-| `command not found: vv-synth` | `uv tool install --editable .` and PATH (`~/.local/bin`) |
+| `command not found: vv-synth` | `uv tool install vv-synth` and PATH (`~/.local/bin`) |
 | `Connection refused` | Start Engine with Docker or an official binary; confirm port 50021 |
 | HTTP 4xx | Check the `--speaker` style ID |
 | WAV is not saved | Current working directory, `--output-dir`, and write permissions |

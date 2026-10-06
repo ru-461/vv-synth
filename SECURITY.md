@@ -6,8 +6,9 @@ credentials, or process untrusted network input by default.
 
 ## Supported versions
 
-This project is pre-1.0 and ships from the `main` branch. Security fixes are applied to the
-latest released version and `main`. Older versions are not maintained.
+This project is pre-1.0. Releases are published to [PyPI](https://pypi.org/project/vv-synth/)
+and as GitHub Releases. Security fixes are applied to the latest release and `main`; older
+versions are not maintained. Upgrade with `uv tool upgrade vv-synth`.
 
 | Version | Supported |
 |---------|-----------|
@@ -20,8 +21,8 @@ Please report security issues **privately**. Do not open a public issue for a vu
 
 - Use GitHub's **"Report a vulnerability"** button under this repository's **Security** tab
   (Security Advisories). This opens a private report visible only to the maintainers.
-- Include affected version or commit, environment (OS, Python, Engine type), reproduction
-  steps, and the impact you observed.
+- Include the affected version (`uv tool list` shows the installed one) or commit,
+  environment (OS, Python, Engine type), reproduction steps, and the impact you observed.
 
 You can expect an initial acknowledgement within a reasonable time. If a fix is needed, we
 will coordinate a disclosure timeline with you before publishing details.

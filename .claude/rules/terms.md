@@ -3,7 +3,7 @@
 This repository is an open-source (MIT) thin HTTP client CLI. The Engine and its assets are
 always external.
 
-## Do not vendor (and never commit)
+## Do not vendor (never commit, never ship in the PyPI sdist / wheel)
 
 - VOICEVOX Engine itself, official binaries, or Docker images
 - Voice libraries and model files
