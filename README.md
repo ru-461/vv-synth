@@ -9,7 +9,7 @@
 The project intentionally stays thin:
 
 - `vv-synth` talks to a separately prepared VOICEVOX Engine over HTTP.
-- VOICEVOX Engine, voice libraries, model files, Docker images, official binaries, and generated WAV files are not bundled in this repository or the PyPI package.
+- VOICEVOX Engine, voice libraries, model files, Docker images, official binaries, and generated WAV files are not bundled in this repository, the PyPI package, or the Homebrew formula.
 - Runtime behavior is centered in [`vv_synth/engine_client.py`](https://github.com/ru-461/vv-synth/blob/main/vv_synth/engine_client.py), [`vv_synth/output_paths.py`](https://github.com/ru-461/vv-synth/blob/main/vv_synth/output_paths.py), and [`main.py`](https://github.com/ru-461/vv-synth/blob/main/main.py).
 
 ## Documentation
@@ -31,11 +31,13 @@ The project intentionally stays thin:
 
 Windows is supported as long as Python, uv, and a reachable VOICEVOX Engine are available. For Windows NVIDIA GPU usage, see [Windows + NVIDIA GPU](#windows--nvidia-gpu-docker-desktop).
 
+When you install [from Homebrew](#from-homebrew) on macOS or Linux, Homebrew provides Python 3.14, so uv is not needed.
+
 VOICEVOX CORE (`voicevox_core/`) is not required by `vv-synth`.
 
 ## OSS Publication And VOICEVOX Terms
 
-`vv-synth` is open source under the MIT License. This repository and the [PyPI package](https://pypi.org/project/vv-synth/) contain only the small HTTP client CLI. It does not vendor VOICEVOX Engine itself, voice libraries, model files, Docker images, official Windows/macOS/Linux binaries, or generated WAV files.
+`vv-synth` is open source under the MIT License. This repository and the [PyPI package](https://pypi.org/project/vv-synth/) contain only the small HTTP client CLI, which the [Homebrew formula](https://github.com/ru-461/homebrew-tap) installs from PyPI. It does not vendor VOICEVOX Engine itself, voice libraries, model files, Docker images, official Windows/macOS/Linux binaries, or generated WAV files.
 
 Users are responsible for checking and following the latest official VOICEVOX terms. Using generated audio requires credit identifying VOICEVOX and compliance with each voice library / speaker's own terms. The required credit may be omitted only where an applicable license explicitly permits it. If generated audio is embedded in an application or redistributed, the final distribution must also satisfy those terms and credit requirements.
 
@@ -146,7 +148,7 @@ Do not run multiple Engines on port 50021 at the same time.
 
 ## Quick Start
 
-Install from [PyPI](https://pypi.org/project/vv-synth/):
+Install from [PyPI](https://pypi.org/project/vv-synth/) (or [from Homebrew](#from-homebrew)):
 
 ```shell
 uv tool install vv-synth
@@ -194,6 +196,23 @@ uv tool update-shell
 # or
 export PATH="$HOME/.local/bin:$PATH"
 ```
+
+### From Homebrew
+
+On macOS or Linux, install from the [`ru-461/tap`](https://github.com/ru-461/homebrew-tap) Homebrew tap. Homebrew installs Python 3.14 as a dependency, so uv is not needed.
+
+```shell
+brew install ru-461/tap/vv-synth
+```
+
+The same `vv-synth` and `vvs` commands are installed. Upgrade or uninstall:
+
+```shell
+brew upgrade vv-synth
+brew uninstall vv-synth
+```
+
+The formula is updated after each PyPI release, so Homebrew can lag PyPI by a day or more.
 
 ### From Source
 
@@ -462,7 +481,7 @@ vv-synth --help
 
 ### Release
 
-Each release publishes one version to PyPI, as the GitHub Release tag `v<version>`, and as the Agent Skills release. PyPI never accepts the same version twice.
+Each release publishes one version to PyPI, as the GitHub Release tag `v<version>`, and as the Agent Skills release; the Homebrew formula then follows PyPI. PyPI never accepts the same version twice.
 
 1. Set `version` in `pyproject.toml` and `metadata.version` in both `skills/*/SKILL.md` files to the new value, then run `uv lock` (CI uses `uv sync --locked`).
 2. Run the [quality checks](#quality-checks), then commit and push `main`.
@@ -476,6 +495,12 @@ Each release publishes one version to PyPI, as the GitHub Release tag `v<version
 
 4. Create the GitHub Release and tag, which also publishes the Agent Skills: `gh skill publish --tag v<version>`.
 5. Upload to PyPI with `uv publish`. It uploads `dist/*` and needs PyPI credentials, such as an API token in `UV_PUBLISH_TOKEN`.
+6. A day after the PyPI upload, update the Homebrew formula (Homebrew skips PyPI releases younger than one day). `bump-formula-pr` only works on a locally tapped Git repository, so tap it first. The second command opens a pull request on [`ru-461/homebrew-tap`](https://github.com/ru-461/homebrew-tap) with the new version and refreshed Python resources; merge it after the tap's CI passes.
+
+   ```shell
+   brew tap ru-461/tap   # once per machine
+   brew bump-formula-pr --no-fork --version <version> ru-461/tap/vv-synth
+   ```
 
 PyPI shows the `README.md` from the uploaded release, so README changes reach the PyPI page only with the next release.
 

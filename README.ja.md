@@ -9,7 +9,7 @@
 このプロジェクトは意図的にシンプルな構成を保っています。
 
 - `vv-synth` は、別途用意した VOICEVOX Engine と HTTP 経由で通信します。
-- VOICEVOX Engine、音声ライブラリ、モデルファイル、Docker イメージ、公式バイナリ、および生成された WAV ファイルは、本リポジトリにも PyPI パッケージにも同梱されていません。
+- VOICEVOX Engine、音声ライブラリ、モデルファイル、Docker イメージ、公式バイナリ、および生成された WAV ファイルは、本リポジトリ、PyPI パッケージ、Homebrew の formula のいずれにも同梱されていません。
 - 実行時の処理は、主に [`vv_synth/engine_client.py`](vv_synth/engine_client.py)、[`vv_synth/output_paths.py`](vv_synth/output_paths.py)、および [`main.py`](main.py) に集約されています。
 
 ## ドキュメント
@@ -31,11 +31,13 @@
 
 Python、uv、および接続可能な VOICEVOX Engine があれば、Windows でも利用できます。Windows で NVIDIA GPU を使用する場合は、[Windows + NVIDIA GPU](#windows--nvidia-gpu-docker-desktop) を参照してください。
 
+macOS / Linux で [Homebrew からインストール](#homebrew-からインストール) する場合は、Homebrew が Python 3.14 を用意するため uv は不要です。
+
 `vv-synth` の実行に VOICEVOX CORE (`voicevox_core/`) は不要です。
 
 ## OSS 公開と VOICEVOX の利用規約
 
-`vv-synth` は MIT ライセンスのもとで公開されているオープンソースソフトウェアです。本リポジトリと [PyPI パッケージ](https://pypi.org/project/vv-synth/) には、軽量な HTTP クライアント CLI のみが含まれています。VOICEVOX Engine 本体、音声ライブラリ、モデルファイル、Docker イメージ、Windows/macOS/Linux 用の公式バイナリ、および生成された WAV ファイルは同梱していません。
+`vv-synth` は MIT ライセンスのもとで公開されているオープンソースソフトウェアです。本リポジトリと [PyPI パッケージ](https://pypi.org/project/vv-synth/) には、軽量な HTTP クライアント CLI のみが含まれています。[Homebrew の formula](https://github.com/ru-461/homebrew-tap) は、この CLI を PyPI からインストールします。VOICEVOX Engine 本体、音声ライブラリ、モデルファイル、Docker イメージ、Windows/macOS/Linux 用の公式バイナリ、および生成された WAV ファイルは同梱していません。
 
 ユーザーは、公式の最新 VOICEVOX 利用規約を確認し、遵守する責任を負います。生成された音声を使用する際は、VOICEVOX を利用したことがわかるクレジット表記と、各音声ライブラリ / 話者固有の利用規約の遵守が必要です。ただし、適用されるライセンスが必要なクレジット表記の省略を明示的に許諾している場合は、その許諾に従います。生成された音声をアプリケーションに組み込んだり再配布したりする場合は、最終的な配布物もそれらの利用規約やクレジット要件を満たしている必要があります。
 
@@ -146,7 +148,7 @@ JSON が返ってくれば Engine の準備は完了です。話者のスタイ�
 
 ## クイックスタート
 
-[PyPI](https://pypi.org/project/vv-synth/) からインストールします。
+[PyPI](https://pypi.org/project/vv-synth/) からインストールします（[Homebrew からインストール](#homebrew-からインストール) することもできます）。
 
 ```shell
 uv tool install vv-synth
@@ -194,6 +196,25 @@ uv tool update-shell
 # または
 export PATH="$HOME/.local/bin:$PATH"
 ```
+
+### Homebrew からインストール
+
+macOS / Linux では、Homebrew の tap [`ru-461/tap`](https://github.com/ru-461/homebrew-tap) からインストールできます。Python 3.14 は Homebrew が依存関係として用意するため、uv は不要です。
+
+```shell
+brew install ru-461/tap/vv-synth
+```
+
+`vv-synth` と `vvs` の 2 つのコマンドが同様にインストールされます。
+
+アップグレードとアンインストール
+
+```shell
+brew upgrade vv-synth
+brew uninstall vv-synth
+```
+
+formula は PyPI のリリース後に更新するため、Homebrew への反映は PyPI より 1 日以上遅れることがあります。
 
 ### ソースからインストール
 
@@ -461,7 +482,7 @@ vv-synth --help
 
 ### リリース
 
-各リリースでは、同じバージョンを PyPI、GitHub Release のタグ `v<version>`、およびエージェントスキルのリリースとして公開します。PyPI では同じバージョンを二度アップロードできません。
+各リリースでは、同じバージョンを PyPI、GitHub Release のタグ `v<version>`、およびエージェントスキルのリリースとして公開します。Homebrew の formula は PyPI のリリースに追従して更新します。PyPI では同じバージョンを二度アップロードできません。
 
 1. `pyproject.toml` の `version` と、両方の `skills/*/SKILL.md` 内の `metadata.version` を新しい値に揃え、`uv lock` を実行します（CI は `uv sync --locked` を使用します）。
 2. [品質チェック](#品質チェック) を実行してからコミットし、`main` をプッシュします。
@@ -475,6 +496,12 @@ vv-synth --help
 
 4. `gh skill publish --tag v<version>` で GitHub Release とタグを作成します。これによりエージェントスキルも公開されます。
 5. `uv publish` で PyPI にアップロードします。`dist/*` がアップロードされ、`UV_PUBLISH_TOKEN` に設定した API トークンなどの PyPI 認証情報が必要です。
+6. PyPI へのアップロードから 1 日以上経ってから、Homebrew の formula を更新します（Homebrew は公開から 1 日未満の PyPI リリースを使いません）。`bump-formula-pr` はローカルに tap 済みの Git リポジトリでしか動かないため、先に tap します。2 つ目のコマンドで、新しいバージョンと更新済みの Python 依存を含むプルリクエストが [`ru-461/homebrew-tap`](https://github.com/ru-461/homebrew-tap) に作成されます。tap の CI が通ったらマージします。
+
+   ```shell
+   brew tap ru-461/tap   # マシンごとに初回のみ
+   brew bump-formula-pr --no-fork --version <version> ru-461/tap/vv-synth
+   ```
 
 PyPI のプロジェクトページには、アップロードしたリリースに含まれる `README.md` が表示されます。README の変更が PyPI に反映されるのは次のリリース以降です。
 

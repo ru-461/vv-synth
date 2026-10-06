@@ -52,7 +52,7 @@ gh skill publish --tag v0.1.1   # release (adds agent-skills topic)
 
 Discovery path: `skills/vv-synth/SKILL.md` ([Agent Skills specification](https://agentskills.io/specification)).
 
-After CLI, Engine setup, or terms guidance changes, bump `version` in `pyproject.toml` and `metadata.version` in both skills' `SKILL.md` files to the same value, publish with the matching `v<version>` tag, upload the same version to PyPI (Release section of the vv-synth README), and tell users to run `gh skill update vv-synth` and `uv tool upgrade vv-synth`.
+After CLI, Engine setup, or terms guidance changes, bump `version` in `pyproject.toml` and `metadata.version` in both skills' `SKILL.md` files to the same value, publish with the matching `v<version>` tag, upload the same version to PyPI (Release section of the vv-synth README), and tell users to run `gh skill update vv-synth` and `uv tool upgrade vv-synth` (Homebrew users: `brew upgrade vv-synth` after the tap formula is bumped).
 
 ## Engine preparation and terms
 

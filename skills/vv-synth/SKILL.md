@@ -7,7 +7,7 @@ description: >-
   from text in any project; or asks to run vv-synth outside the vv-synth
   repository.
 license: MIT
-compatibility: Requires Python 3.14+, uv, and a reachable VOICEVOX Engine on port 50021. Engine may be Docker CPU/GPU or an official binary. Windows Docker GPU requires Docker Desktop WSL2 backend with NVIDIA GPU.
+compatibility: Requires the vv-synth CLI, installed with uv (Python 3.14+) or Homebrew (macOS / Linux), and a reachable VOICEVOX Engine on port 50021. Engine may be Docker CPU/GPU or an official binary. Windows Docker GPU requires Docker Desktop WSL2 backend with NVIDIA GPU.
 metadata:
   author: ru-461
   version: "0.1.1"
@@ -15,7 +15,7 @@ metadata:
 
 # vv-synth (portable — any project)
 
-`vv-synth` is a **global Typer CLI** (install once from PyPI with `uv tool install vv-synth`). It calls a separately prepared VOICEVOX Engine over HTTP and writes a WAV under the **shell current working directory**. Japanese text works best; other languages depend on the Engine build.
+`vv-synth` is a **global Typer CLI** (install once from PyPI with `uv tool install vv-synth`, or with Homebrew via `brew install ru-461/tap/vv-synth`). It calls a separately prepared VOICEVOX Engine over HTTP and writes a WAV under the **shell current working directory**. Japanese text works best; other languages depend on the Engine build.
 
 This skill does not install or redistribute VOICEVOX Engine, voice libraries, model files, binaries, Docker images, or generated WAV files. Follow the latest VOICEVOX Engine terms and each voice library / speaker's terms, including credit requirements, before using or distributing generated audio.
 
@@ -35,7 +35,7 @@ This skill does not install or redistribute VOICEVOX Engine, voice libraries, mo
 | Requirement | Notes |
 |-------------|-------|
 | Docker or official Engine binary | VOICEVOX Engine must listen on port 50021 |
-| Python 3.14+ and [uv](https://docs.astral.sh/uv/) | For `uv tool install`, `uvx`, or `uv run --project` |
+| Python 3.14+ and [uv](https://docs.astral.sh/uv/), or [Homebrew](https://brew.sh/) (macOS / Linux) | uv: `uv tool install`, `uvx`, or `uv run --project`. Homebrew: `brew install ru-461/tap/vv-synth` (provides Python itself) |
 | `vv-synth` on PATH | Or `uvx vv-synth` (no install) / `uv run --project <vv-synth-repo> vv-synth` |
 | Engine on `http://127.0.0.1:50021` | Override with `--engine-url` or `VOICEVOX_ENGINE_URL` |
 
@@ -82,6 +82,15 @@ vv-synth --help
 ```
 
 `~/.local/bin` must be on PATH. Upgrade later with `uv tool upgrade vv-synth`.
+
+**With Homebrew** (macOS / Linux, no uv needed):
+
+```shell
+brew install ru-461/tap/vv-synth
+vv-synth --help
+```
+
+Upgrade later with `brew upgrade vv-synth`.
 
 **No install:** run the PyPI package in a temporary environment (same arguments as `vv-synth`):
 
@@ -147,7 +156,7 @@ Confirm the file exists on disk; return the resolved path to the user. Do not `g
 
 | Symptom | Action |
 |---------|--------|
-| `command not found: vv-synth` | `uv tool install vv-synth`, or run `uvx vv-synth ...` / `uv run --project <repo> vv-synth` |
+| `command not found: vv-synth` | `uv tool install vv-synth` or `brew install ru-461/tap/vv-synth`, or run `uvx vv-synth ...` / `uv run --project <repo> vv-synth` |
 | `Connection refused` | Start Engine; `curl .../version` → 200 |
 | HTTP 4xx | Fix `--speaker` using `/speakers` in Engine docs |
 | Exit code 1 | Read one-line stderr; do not expect a traceback |
