@@ -10,7 +10,7 @@ license: MIT
 compatibility: Requires Python 3.14+, uv, the vv-synth repo checkout, and a reachable VOICEVOX Engine on port 50021. Engine may be Docker CPU/GPU or an official binary.
 metadata:
   author: ru-461
-  version: "0.1.1"
+  version: "0.1.2"
 ---
 
 # vv-synth-dev (repository development)
