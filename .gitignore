@@ -44,3 +44,6 @@ output/*
 
 # Local Claude Code skill copies (canonical skills live in skills/)
 .claude/skills/
+
+# Local agent work plans
+/docs/plans/
